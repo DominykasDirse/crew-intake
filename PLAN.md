@@ -26,6 +26,9 @@ You asked to stop after notifications. That gives us:
 | 10 | Exports and digests | **skipped** |
 | 11 | Build configuration | folded into 0 and 8 (a dev build is required for push) |
 
+Heads-up for when the weekly form is seeded: it carries `intro_en` / `intro_lt`, which
+have no column today. Add `forms.intro_en`, `forms.intro_lt` in that phase's migration.
+
 Deferred but **not** deleted: every one of the 13 tables is created in phase 1,
 including `invoices`, `issues`, `audit_log`. Weekly form, invoice form, all five
 groups and their forms stay in `forms.seed.json` and are seeded later by re-running

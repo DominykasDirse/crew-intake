@@ -1,0 +1,71 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/assert@1": "1.0.19",
+    "jsr:@std/internal@^1.0.12": "1.0.14"
+  },
+  "jsr": {
+    "@std/assert@1.0.19": {
+      "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1",
+      "npm:@supabase/supabase-js@2"
+    ],
+    "packageJson": {
+      "dependencies": [
+        "npm:@date-fns/tz@^1.5.0",
+        "npm:@hookform/resolvers@^5.9.1",
+        "npm:@react-native-async-storage/async-storage@2.2.0",
+        "npm:@sentry/react-native@7.11",
+        "npm:@supabase/supabase-js@^2.114.0",
+        "npm:@tanstack/react-query@^5.102.8",
+        "npm:@types/jest@^29.5.14",
+        "npm:@types/react@^19.2.18",
+        "npm:date-fns@^4.4.0",
+        "npm:eslint-config-expo@^57.0.2",
+        "npm:eslint-config-prettier@^10.1.8",
+        "npm:eslint@^9.39.5",
+        "npm:expo-camera@~57.0.4",
+        "npm:expo-constants@~57.0.17",
+        "npm:expo-device@~57.0.1",
+        "npm:expo-file-system@~57.0.6",
+        "npm:expo-image-manipulator@~57.0.15",
+        "npm:expo-image-picker@~57.0.15",
+        "npm:expo-linking@~57.0.9",
+        "npm:expo-localization@~57.0.1",
+        "npm:expo-notifications@~57.0.16",
+        "npm:expo-router@~57.0.18",
+        "npm:expo-secure-store@~57.0.3",
+        "npm:expo-splash-screen@~57.0.8",
+        "npm:expo-status-bar@~57.0.1",
+        "npm:expo-system-ui@~57.0.3",
+        "npm:expo@~57.0.19",
+        "npm:i18next@^26.4.1",
+        "npm:jest-expo@^57.0.5",
+        "npm:jest@^29.7.0",
+        "npm:prettier@^3.9.6",
+        "npm:react-dom@19.2.3",
+        "npm:react-hook-form@^7.87.0",
+        "npm:react-i18next@^17.0.13",
+        "npm:react-native-qrcode-svg@^6.3.21",
+        "npm:react-native-safe-area-context@5.7",
+        "npm:react-native-screens@4.26",
+        "npm:react-native-svg@15.15.4",
+        "npm:react-native@0.86.3",
+        "npm:react@19.2.3",
+        "npm:typescript@^6.0.3",
+        "npm:zod@^3.25.76",
+        "npm:zustand@^5.0.15"
+      ]
+    }
+  }
+}

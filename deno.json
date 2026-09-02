@@ -1,8 +1,30 @@
 {
   "imports": {
-    "@supabase/supabase-js": "npm:@supabase/supabase-js@2"
+    "@supabase/supabase-js": "npm:@supabase/supabase-js@2",
+    "@std/assert": "jsr:@std/assert@1"
   },
-  "lint": { "include": ["scripts/", "supabase/functions/", "supabase/seed/"] },
-  "fmt": { "include": ["scripts/", "supabase/functions/", "supabase/seed/"], "singleQuote": true, "lineWidth": 100 },
-  "exclude": ["node_modules/", ".expo/", "app/", "src/", "tests/", "assets/"]
+  "lint": {
+    "include": [
+      "scripts/",
+      "supabase/functions/",
+      "supabase/seed/"
+    ]
+  },
+  "fmt": {
+    "include": [
+      "scripts/",
+      "supabase/functions/",
+      "supabase/seed/"
+    ],
+    "singleQuote": true,
+    "lineWidth": 100
+  },
+  "exclude": [
+    "node_modules/",
+    ".expo/",
+    "app/",
+    "src/",
+    "tests/",
+    "assets/"
+  ]
 }

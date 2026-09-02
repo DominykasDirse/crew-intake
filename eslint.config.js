@@ -14,6 +14,7 @@ module.exports = defineConfig([
       'android/*',
       'ios/*',
       'supabase/**',
+      'scripts/**', // Deno-owned: deno lint/check cover these
       'coverage/*',
     ],
   },
