@@ -10,7 +10,8 @@ set -eu
 cd "$(dirname "$0")/.."
 
 APP_PATHS="app src app.config.ts eas.json package.json"
-NAMES='GOOGLE_CLIENT_ID|GOOGLE_CLIENT_SECRET|GOOGLE_REFRESH_TOKEN|DRIVE_ROOT_FOLDER_ID|SUPABASE_SERVICE_ROLE_KEY|service_role'
+# whole-token matches only: the generated types legitimately mention the is_service_role() helper
+NAMES='GOOGLE_CLIENT_ID|GOOGLE_CLIENT_SECRET|GOOGLE_REFRESH_TOKEN|DRIVE_ROOT_FOLDER_ID|SUPABASE_SERVICE_ROLE_KEY|(^|[^[:alnum:]_])service_role([^[:alnum:]_]|$)'
 # GOCSPX- = Google client secret, ya29. = Google access token, 1//0 = Google refresh token,
 # eyJhbGciOi = a JWT (Supabase service_role / anon keys are JWTs; anon must come from env, not source)
 VALUES='GOCSPX-[A-Za-z0-9_-]{10,}|ya29\.[A-Za-z0-9_-]{20,}|1//0[A-Za-z0-9_-]{20,}|eyJhbGciOi[A-Za-z0-9_-]{20,}'

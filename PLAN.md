@@ -67,10 +67,11 @@ Checked on this machine:
 | npm | 11.19.0 |
 | Supabase CLI | 2.116.0 |
 | EAS CLI | 23.2.0 |
-| Deno | not installed |
-| Expo latest stable | SDK **57** (`expo@57.0.19`, React Native 0.87.1) |
+| Deno | 2.9.6 (installed via brew in phase 0) |
+| PostgreSQL | 17 via brew, used only to validate migrations locally |
+| Expo latest stable | SDK **57** (`expo@57.0.19`, React Native 0.86.3) |
 
-Supabase project ref `buodsskyppiugzybkihu` (EU). EAS project id
+Supabase project ref `huodsskyppiuqzybkjhu` (EU). EAS project id
 `52529350-6421-4916-a602-d4440e49bcec`, slug `crew-intake`.
 
 Two environment risks, both in the open questions: Node 26 is ahead of what Expo/Metro
@@ -450,7 +451,7 @@ not run in Expo Go and the early screens are developed in Expo Go (C6).
 Answered 2026-09-02:
 
 - **Q1 — Node version.** Node 22 LTS, pinned with `fnm` + `.nvmrc` so the pin is real (C10).
-- **Q2 — No Docker.** Develop directly against the cloud project `buodsskyppiugzybkihu`;
+- **Q2 — No Docker.** Develop directly against the cloud project `huodsskyppiuqzybkjhu`;
   no real data exists until phase 4. Deno installed via brew for Edge Function tests.
 - **Q3 — Tour to seed:** `T1` / `Tour 1` / 2026-11-01 → 2027-05-30 / `Europe/Vilnius`.
 - **Q4 — Seed all five group rows** with their notify times, but only the Crew form.
