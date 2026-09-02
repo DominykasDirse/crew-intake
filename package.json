@@ -13,11 +13,13 @@
     "lint": "eslint .",
     "format": "prettier --check .",
     "test": "jest",
-    "check": "npm run typecheck && npm run lint && npm run test && npm run secrets:check",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run check:deno && npm run secrets:check",
     "secrets:check": "sh scripts/check-secrets.sh",
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --project-id buodsskyppiugzybkihu --schema public > src/types/database.types.ts",
-    "seed": "deno run --allow-net --allow-env --allow-read supabase/seed/seed.ts"
+    "seed": "deno run --allow-net --allow-env --allow-read supabase/seed/seed.ts",
+    "check:deno": "deno check scripts/*.ts && deno lint scripts",
+    "rls:test": "deno run --allow-net --allow-env --env-file=.env scripts/rls-test.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

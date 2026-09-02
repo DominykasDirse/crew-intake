@@ -17,6 +17,14 @@ See [PLAN.md](PLAN.md) for scope, schema, and decisions.
 | `npm run db:push` | apply `supabase/migrations` to the linked project |
 | `npm run db:types` | regenerate `src/types/database.types.ts` |
 | `npm run seed` | seed groups, tour and forms from `forms.seed.json` |
+| `npm run rls:test` | live RLS + `submit_report` acceptance test (creates and removes throwaway users) |
+
+## Database
+
+Migrations live in `supabase/migrations`, applied with `npm run db:push` against the
+linked project. Every migration is validated on a local Postgres 17 before it is committed.
+Nobody is ever hard-deleted: people are `status = 'inactive'`, and every FK from report
+data to `profiles` is `ON DELETE RESTRICT`.
 
 ## Secrets
 

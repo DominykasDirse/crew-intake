@@ -196,9 +196,12 @@ never `offset`.
 
 ### Row-level security
 
-`alter table … enable row level security` plus `force row level security` on all 13,
-no permissive default, and **no policy at all** on tables the app must not touch
-directly (`audit_log` is written only by triggers and `SECURITY DEFINER` functions).
+`alter table … enable row level security` on all 15, `anon` revoked outright (including
+default privileges for future tables), no permissive default, and **no write policy at all**
+on tables the app must not touch directly (`audit_log`, `notifications`, `invites`,
+`drive_folders` are written only by triggers, `SECURITY DEFINER` functions and the service
+role). `FORCE` is deliberately not used: the `SECURITY DEFINER` functions rely on the owner
+bypassing policies, which is the standard Supabase pattern.
 
 Helper: `public.is_admin()` — `SECURITY DEFINER`, `stable`, `set search_path = ''`,
 reads `profiles.is_admin` for `auth.uid()`. Defining it as a function is not decoration:
