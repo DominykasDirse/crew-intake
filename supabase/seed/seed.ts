@@ -1,26 +1,30 @@
 // Seeds groups, the tour, and the published daily form(s) from ../../forms.seed.json.
 // Idempotent: re-running with an unchanged file changes nothing.
 //
-//   npm run seed                 -- apply against the project in .env (service role)
-//   npm run seed -- --dry-run    -- read the project, print the plan, write nothing
-//   npm run seed -- --plan-only  -- no project at all: assume an empty database
-//   npm run seed -- --allow-new-version   -- permit structural form changes (see diff.ts)
+//   npm run seed                        -- apply against the project in .env (service role)
+//   npm run seed -- --dry-run           -- read the project, print the full plan, write nothing
+//   npm run seed -- --plan-only         -- no project at all: plan against an empty database
+//   npm run seed -- --allow-new-version -- permit structural form changes (see diff.ts)
 //
 // Scope for this build: all five group rows + the T1 tour + ONLY the Crew daily form.
 // Widen SEED_GROUPS when the other groups go live. Keys are never renamed here.
 
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import type { QuestionRow } from './diff.ts';
 import {
-  assertDailyFormShape,
-  diffQuestions,
-  type QuestionRow,
-  type SeedForm,
-  toRows,
-} from './diff.ts';
+  type Action,
+  buildPlan,
+  describe,
+  emptyExisting,
+  type Existing,
+  isPlaceholder,
+  type SeedFile,
+  type TourRow,
+} from './plan.ts';
 
 const SEED_GROUPS = ['crew'];
 
-const TOUR = {
+const TOUR: TourRow = {
   code: 'T1',
   name: 'Tour 1',
   starts_on: '2026-11-01',
@@ -30,7 +34,7 @@ const TOUR = {
   is_active: true,
 };
 
-// Calendar colours; readable on both a dark corridor and a bright screen.
+// Calendar colours; readable in a dark corridor and in daylight.
 const GROUP_COLORS: Record<string, string> = {
   orchestra: '#8B5CF6',
   crew: '#3B82F6',
@@ -39,21 +43,154 @@ const GROUP_COLORS: Record<string, string> = {
   driver: '#10B981',
 };
 
-type SeedFile = {
-  groups: { key: string; name_en: string; name_lt: string; notify_at: string; sort: number }[];
-  forms: SeedForm[];
-};
-
 const args = new Set(Deno.args);
 const DRY = args.has('--dry-run');
 const PLAN_ONLY = args.has('--plan-only');
 const ALLOW_NEW_VERSION = args.has('--allow-new-version');
 
-const seedPath = new URL('../../forms.seed.json', import.meta.url);
-const seed = JSON.parse(await Deno.readTextFile(seedPath)) as SeedFile;
+const seed = JSON.parse(
+  await Deno.readTextFile(new URL('../../forms.seed.json', import.meta.url)),
+) as SeedFile;
 
+function fail(r: { error: { message: string } | null }, what: string) {
+  if (r.error) throw new Error(`${what}: ${r.error.message}`);
+}
+
+// ---------------------------------------------------------------- read what exists
+async function readExisting(db: SupabaseClient): Promise<Existing> {
+  const ex = emptyExisting();
+
+  const g = await db.from('groups').select(
+    'id,key,name_en,name_lt,notify_at,sort_order,color,is_active',
+  );
+  fail(g, 'read groups');
+  for (const row of g.data ?? []) ex.groups.set(row.key, row);
+
+  const t = await db.from('tours').select(
+    'id,code,name,starts_on,ends_on,timezone,currency,is_active',
+  ).eq('code', TOUR.code).maybeSingle();
+  fail(t, 'read tour');
+  ex.tour = t.data;
+
+  for (const key of SEED_GROUPS) {
+    const gid = ex.groups.get(key)?.id;
+    if (!gid) continue;
+    const f = await db
+      .from('forms').select('id,version,is_published,title_en,title_lt,is_mandatory')
+      .eq('group_id', gid).eq('kind', 'daily')
+      .order('version', { ascending: false }).limit(1).maybeSingle();
+    fail(f, `read form ${key}/daily`);
+    if (!f.data) continue;
+    const q = await db
+      .from('questions')
+      .select(
+        'id,key,type,order_index,label_en,label_lt,help_text,is_required,options,validation,visible_if,opens_issue',
+      )
+      .eq('form_id', f.data.id).order('order_index');
+    fail(q, `read questions ${key}/daily`);
+    ex.forms.set(key, { ...f.data, questions: (q.data ?? []) as (QuestionRow & { id: string })[] });
+  }
+  return ex;
+}
+
+// ---------------------------------------------------------------- apply
+async function apply(db: SupabaseClient, actions: Action[]) {
+  // placeholder id → real id, filled in as groups are inserted
+  const ids = new Map<string, string>();
+  const resolve = (id: string) => {
+    if (!isPlaceholder(id)) return id;
+    const real = ids.get(id);
+    if (!real) throw new Error(`placeholder ${id} was never resolved`);
+    return real;
+  };
+  const insertForm = (
+    groupId: string,
+    a: Extract<Action, { type: 'form.insert' | 'form.new_version' }>,
+  ) =>
+    db.from('forms').insert({
+      ...a.form,
+      is_published: false,
+      group_id: resolve(groupId),
+      kind: 'daily',
+    }).select('id').single();
+
+  for (const a of actions) {
+    console.log(describe(a, ''));
+    switch (a.type) {
+      case 'group.insert': {
+        const r = await db.from('groups').insert(a.row).select('id').single();
+        fail(r, `insert group ${a.key}`);
+        ids.set(a.id, r.data!.id);
+        break;
+      }
+      case 'group.update':
+        fail(await db.from('groups').update(a.row).eq('id', a.id), `update group ${a.key}`);
+        break;
+      case 'tour.insert':
+        fail(await db.from('tours').insert(a.row), 'insert tour');
+        break;
+      case 'tour.update':
+        fail(await db.from('tours').update(a.row).eq('id', a.id), 'update tour');
+        break;
+      case 'form.insert': {
+        const r = await insertForm(a.groupId, a);
+        fail(r, `insert ${a.label}`);
+        fail(
+          await db.from('questions').insert(
+            a.questions.map((q) => ({ ...q, form_id: r.data!.id })),
+            { defaultToNull: false },
+          ),
+          `insert questions ${a.label}`,
+        );
+        fail(
+          await db.from('forms').update({ is_published: true }).eq('id', r.data!.id),
+          `publish ${a.label}`,
+        );
+        break;
+      }
+      case 'form.in_place':
+        for (const u of a.updates) {
+          fail(
+            await db.from('questions').update(u.upd).eq('id', u.questionId),
+            `update question ${u.key}`,
+          );
+        }
+        break;
+      case 'form.new_version': {
+        const r = await insertForm(a.groupId, a);
+        fail(r, `insert ${a.label} v${a.version}`);
+        fail(
+          await db.from('questions').insert(
+            a.questions.map((q) => ({ ...q, form_id: r.data!.id })),
+            { defaultToNull: false },
+          ),
+          `insert questions ${a.label} v${a.version}`,
+        );
+        fail(
+          await db.from('forms').update({ is_published: true }).eq('id', r.data!.id),
+          `publish ${a.label} v${a.version}`,
+        );
+        fail(
+          await db.from('forms').update({ is_published: false }).eq('id', a.oldFormId),
+          `unpublish ${a.label} v${a.oldVersion}`,
+        );
+        break;
+      }
+      case 'form.title':
+        fail(await db.from('forms').update(a.row).eq('id', a.formId), `update ${a.label} title`);
+        break;
+      default:
+        break; // same / skip
+    }
+  }
+}
+
+// ---------------------------------------------------------------- main
 let db: SupabaseClient | null = null;
-if (!PLAN_ONLY) {
+let existing = emptyExisting();
+if (PLAN_ONLY) {
+  console.log('plan against an EMPTY database (--plan-only)\n');
+} else {
   const url = Deno.env.get('EXPO_PUBLIC_SUPABASE_URL');
   const key = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
   if (!url || !key) {
@@ -63,249 +200,30 @@ if (!PLAN_ONLY) {
     Deno.exit(2);
   }
   db = createClient(url, key, { auth: { persistSession: false } });
+  existing = await readExisting(db);
+  console.log(
+    `project ${new URL(url).host}: ${existing.groups.size} groups, tour ${
+      existing.tour ? 'present' : 'absent'
+    }, ${existing.forms.size} seeded form(s)\n`,
+  );
 }
 
-const log = (s: string) => console.log(s);
-const act = (s: string) => console.log(`${DRY || PLAN_ONLY ? '  would ' : '  '}${s}`);
+const plan = buildPlan(seed, existing, {
+  seedGroups: SEED_GROUPS,
+  tour: TOUR,
+  groupColors: GROUP_COLORS,
+  allowNewVersion: ALLOW_NEW_VERSION,
+});
 
-function fail(r: { error: { message: string } | null }, what: string) {
-  if (r.error) throw new Error(`${what}: ${r.error.message}`);
+if (DRY || PLAN_ONLY || plan.refused) {
+  for (const a of plan.actions) console.log(describe(a, 'would'));
+  if (plan.refused) {
+    console.error('\nseed: stopped — see the !! lines above; nothing written');
+    Deno.exit(1);
+  }
+  console.log('\nseed: plan only, nothing written');
+  Deno.exit(0);
 }
 
-// ---------------------------------------------------------------- groups
-log('groups');
-const groupIds = new Map<string, string>();
-for (const g of seed.groups) {
-  const row = {
-    key: g.key,
-    name_en: g.name_en,
-    name_lt: g.name_lt,
-    notify_at: g.notify_at,
-    sort_order: g.sort,
-    color: GROUP_COLORS[g.key] ?? '#888888',
-    is_active: true,
-  };
-  if (db) {
-    const existing = await db.from('groups').select('id,name_en,name_lt,notify_at,sort_order,color')
-      .eq('key', g.key).maybeSingle();
-    fail(existing, `read group ${g.key}`);
-    if (existing.data) {
-      groupIds.set(g.key, existing.data.id);
-      // Postgres returns time as HH:MM:SS; the seed file says HH:MM
-      const dbNotify = String(existing.data.notify_at).slice(0, 5);
-      const changed = [
-        existing.data.name_en !== row.name_en ? 'name_en' : null,
-        existing.data.name_lt !== row.name_lt ? 'name_lt' : null,
-        dbNotify !== row.notify_at ? 'notify_at' : null,
-        existing.data.sort_order !== row.sort_order ? 'sort_order' : null,
-      ].filter((k): k is string => k !== null);
-      if (changed.length === 0) {
-        log(`  = ${g.key}`);
-        continue;
-      }
-      act(`update ${g.key}: ${changed.join(', ')}`);
-      if (!DRY) {
-        const { color: _c, is_active: _a, ...upd } = row;
-        fail(
-          await db.from('groups').update(upd).eq('id', existing.data.id),
-          `update group ${g.key}`,
-        );
-      }
-      continue;
-    }
-  }
-  act(`insert ${g.key} (${g.name_en}, ${g.notify_at})`);
-  if (db && !DRY) {
-    const ins = await db.from('groups').insert(row).select('id').single();
-    fail(ins, `insert group ${g.key}`);
-    groupIds.set(g.key, ins.data!.id);
-  }
-}
-
-// ---------------------------------------------------------------- tour
-log('tour');
-if (db) {
-  const existing = await db.from('tours').select(
-    'id,name,starts_on,ends_on,timezone,currency,is_active',
-  ).eq('code', TOUR.code).maybeSingle();
-  fail(existing, 'read tour');
-  if (existing.data) {
-    const changed = (['name', 'starts_on', 'ends_on', 'timezone', 'currency', 'is_active'] as const)
-      .filter(
-        (k) => String(existing.data![k]) !== String(TOUR[k]),
-      );
-    if (changed.length === 0) log(`  = ${TOUR.code}`);
-    else {
-      act(`update ${TOUR.code}: ${changed.join(', ')}`);
-      if (!DRY) {
-        const { code: _code, ...upd } = TOUR;
-        fail(await db.from('tours').update(upd).eq('id', existing.data.id), 'update tour');
-      }
-    }
-  } else {
-    act(`insert ${TOUR.code} ${TOUR.name} ${TOUR.starts_on}..${TOUR.ends_on} ${TOUR.timezone}`);
-    if (!DRY) fail(await db.from('tours').insert(TOUR), 'insert tour');
-  }
-} else {
-  act(`insert ${TOUR.code} ${TOUR.name} ${TOUR.starts_on}..${TOUR.ends_on} ${TOUR.timezone}`);
-}
-
-// ---------------------------------------------------------------- forms
-log('forms');
-let refused = false;
-for (const form of seed.forms) {
-  if (form.group === null || !SEED_GROUPS.includes(form.group)) {
-    log(`  skip ${form.group ?? 'shared'}/${form.kind} (not in SEED_GROUPS)`);
-    continue;
-  }
-  assertDailyFormShape(form);
-  const wanted = toRows(form.questions);
-  const label = `${form.group}/${form.kind}`;
-
-  let current: {
-    id: string;
-    version: number;
-    is_published: boolean;
-    title_en: string;
-    title_lt: string;
-    is_mandatory: boolean;
-    questions: (QuestionRow & { id: string })[];
-  } | null = null;
-  if (db) {
-    const gid = groupIds.get(form.group);
-    if (!gid) throw new Error(`group ${form.group} has no id`);
-    const f = await db
-      .from('forms')
-      .select('id,version,is_published,title_en,title_lt,is_mandatory')
-      .eq('group_id', gid).eq('kind', form.kind)
-      .order('version', { ascending: false }).limit(1).maybeSingle();
-    fail(f, `read form ${label}`);
-    if (f.data) {
-      const qs = await db
-        .from('questions')
-        .select(
-          'id,key,type,order_index,label_en,label_lt,help_text,is_required,options,validation,visible_if,opens_issue',
-        )
-        .eq('form_id', f.data.id).order('order_index');
-      fail(qs, `read questions ${label}`);
-      current = { ...f.data, questions: qs.data as (QuestionRow & { id: string })[] };
-    }
-  }
-
-  if (!current) {
-    act(`insert ${label} v1, ${wanted.length} questions: ${wanted.map((q) => q.key).join(' ')}`);
-    if (db && !DRY) {
-      const gid = groupIds.get(form.group)!;
-      const ins = await db.from('forms').insert({
-        group_id: gid,
-        kind: form.kind,
-        title_en: form.title_en,
-        title_lt: form.title_lt,
-        version: 1,
-        is_mandatory: form.is_mandatory,
-        is_published: false,
-      }).select('id').single();
-      fail(ins, `insert form ${label}`);
-      fail(
-        await db.from('questions').insert(wanted.map((q) => ({ ...q, form_id: ins.data!.id })), {
-          defaultToNull: false,
-        }),
-        `insert questions ${label}`,
-      );
-      fail(
-        await db.from('forms').update({ is_published: true }).eq('id', ins.data!.id),
-        `publish ${label}`,
-      );
-    }
-    continue;
-  }
-
-  const d = diffQuestions(current.questions, wanted);
-  const titleChanged = current.title_en !== form.title_en || current.title_lt !== form.title_lt ||
-    current.is_mandatory !== form.is_mandatory;
-
-  switch (d.kind) {
-    case 'identical':
-      log(
-        `  = ${label} v${current.version}${
-          current.is_published ? '' : ' (UNPUBLISHED — publish it in the admin)'
-        }`,
-      );
-      break;
-    case 'in_place': {
-      act(`update ${label} v${current.version} in place: ${d.changes.join(', ')}`);
-      if (!DRY) {
-        for (const w of wanted) {
-          const c = current.questions.find((q) => q.key === w.key)!;
-          const { key: _k, type: _t, order_index: _o, visible_if: _v, ...upd } = w;
-          fail(await db!.from('questions').update(upd).eq('id', c.id), `update question ${w.key}`);
-        }
-      }
-      break;
-    }
-    case 'new_version': {
-      const v = current.version + 1;
-      if (!ALLOW_NEW_VERSION) {
-        refused = true;
-        log(`  !! ${label} needs a new version v${v}: ${d.reasons.join('; ')}`);
-        log(
-          `     re-run with --allow-new-version to create it (old answers stay on v${current.version})`,
-        );
-        break;
-      }
-      act(`create ${label} v${v} (${d.reasons.join('; ')}) and unpublish v${current.version}`);
-      if (!DRY) {
-        const gid = groupIds.get(form.group)!;
-        const ins = await db!.from('forms').insert({
-          group_id: gid,
-          kind: form.kind,
-          title_en: form.title_en,
-          title_lt: form.title_lt,
-          version: v,
-          is_mandatory: form.is_mandatory,
-          is_published: false,
-        }).select('id').single();
-        fail(ins, `insert form ${label} v${v}`);
-        fail(
-          await db!.from('questions').insert(wanted.map((q) => ({ ...q, form_id: ins.data!.id })), {
-            defaultToNull: false,
-          }),
-          `insert questions ${label} v${v}`,
-        );
-        fail(
-          await db!.from('forms').update({ is_published: true }).eq('id', ins.data!.id),
-          `publish ${label} v${v}`,
-        );
-        fail(
-          await db!.from('forms').update({ is_published: false }).eq('id', current.id),
-          `unpublish ${label} v${current.version}`,
-        );
-      }
-      break;
-    }
-    case 'refuse':
-      refused = true;
-      log(`  !! ${label} REFUSED: ${d.reasons.join('; ')}`);
-      break;
-  }
-
-  if (titleChanged && d.kind !== 'refuse') {
-    act(`update ${label} title/mandatory`);
-    if (db && !DRY) {
-      fail(
-        await db.from('forms').update({
-          title_en: form.title_en,
-          title_lt: form.title_lt,
-          is_mandatory: form.is_mandatory,
-        }).eq('id', current.id),
-        `update form ${label}`,
-      );
-    }
-  }
-}
-
-if (refused) {
-  console.error('\nseed: stopped — see the !! lines above');
-  Deno.exit(1);
-}
-log(DRY || PLAN_ONLY ? '\nseed: plan only, nothing written' : '\nseed: done');
+await apply(db!, plan.actions);
+console.log('\nseed: done');
