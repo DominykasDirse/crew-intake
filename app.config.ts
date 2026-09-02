@@ -1,0 +1,76 @@
+import type { ConfigContext, ExpoConfig } from 'expo/config';
+
+const EAS_PROJECT_ID = '52529350-6421-4916-a602-d4440e49bcec';
+
+// Permanent once published. Do not change.
+const ANDROID_PACKAGE = 'io.github.dominykasdirse.crewintake';
+
+export default ({ config }: ConfigContext): ExpoConfig => ({
+  ...config,
+  name: 'Crew Intake',
+  slug: 'crew-intake',
+  version: '0.1.0',
+  orientation: 'portrait',
+  icon: './assets/icon.png',
+  scheme: 'crewintake',
+  userInterfaceStyle: 'automatic',
+  android: {
+    package: ANDROID_PACKAGE,
+    adaptiveIcon: {
+      backgroundColor: '#111111',
+      foregroundImage: './assets/android-icon-foreground.png',
+      backgroundImage: './assets/android-icon-background.png',
+      monochromeImage: './assets/android-icon-monochrome.png',
+    },
+    predictiveBackGestureEnabled: false,
+  },
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    'expo-localization',
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash-icon.png',
+        imageWidth: 200,
+        resizeMode: 'contain',
+        backgroundColor: '#111111',
+      },
+    ],
+    ['expo-notifications', { color: '#111111' }],
+    [
+      'expo-camera',
+      {
+        cameraPermission:
+          'Crew Intake uses the camera to scan your invite QR code and to photograph faults.',
+      },
+    ],
+    [
+      'expo-image-picker',
+      {
+        photosPermission: 'Crew Intake needs your photos so you can attach a picture to a report.',
+        cameraPermission: 'Crew Intake uses the camera to photograph faults.',
+      },
+    ],
+    // Sentry is scaffolded but inert until SENTRY_ORG/SENTRY_PROJECT (build) and
+    // EXPO_PUBLIC_SENTRY_DSN (runtime) are set. See Q15 in PLAN.md.
+    ...(process.env.SENTRY_ORG && process.env.SENTRY_PROJECT
+      ? [
+          [
+            '@sentry/react-native/expo',
+            {
+              organization: process.env.SENTRY_ORG,
+              project: process.env.SENTRY_PROJECT,
+              url: 'https://sentry.io/',
+            },
+          ] as [string, Record<string, string>],
+        ]
+      : []),
+  ],
+  updates: { url: `https://u.expo.dev/${EAS_PROJECT_ID}` },
+  runtimeVersion: { policy: 'appVersion' },
+  extra: {
+    eas: { projectId: EAS_PROJECT_ID },
+    router: {},
+  },
+});

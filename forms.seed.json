@@ -1,0 +1,875 @@
+{
+  "_readme": "Crew Intake seed data v3. Daily report (mandatory) per group + one optional weekly report shared by all groups. No identity documents or sensitive personal data is collected. Question types: yes_no, rating (1-5), number, money, short_text, long_text, photo, file. 'visible_if' shows a question only when another answer matches. Labels EN + LT.",
+  "groups": [
+    {
+      "key": "orchestra",
+      "name_en": "Orchestra",
+      "name_lt": "Orkestras",
+      "notify_at": "23:15",
+      "sort": 1
+    },
+    {
+      "key": "crew",
+      "name_en": "Crew",
+      "name_lt": "Technikai",
+      "notify_at": "23:30",
+      "sort": 2
+    },
+    {
+      "key": "production",
+      "name_en": "Production",
+      "name_lt": "Prodiuseriai",
+      "notify_at": "23:00",
+      "sort": 3
+    },
+    {
+      "key": "chef",
+      "name_en": "Chefs",
+      "name_lt": "Virtuvė",
+      "notify_at": "21:30",
+      "sort": 4
+    },
+    {
+      "key": "driver",
+      "name_en": "Drivers",
+      "name_lt": "Vairuotojai",
+      "notify_at": "22:00",
+      "sort": 5
+    }
+  ],
+  "_groups_note": "Admins can create more groups in the app. notify_at is the default push time for that group, in the person's local timezone; each person can be given their own time.",
+  "forms": [
+    {
+      "group": "orchestra",
+      "kind": "daily",
+      "is_mandatory": true,
+      "title_en": "Daily report",
+      "title_lt": "Dienos ataskaita",
+      "questions": [
+        {
+          "key": "worked_today",
+          "type": "yes_no",
+          "label_en": "Did you work today?",
+          "label_lt": "Ar šiandien dirbote?",
+          "required": true
+        },
+        {
+          "key": "absence_reason",
+          "type": "short_text",
+          "label_en": "Why not? (day off, travel, sick)",
+          "label_lt": "Kodėl ne? (poilsio diena, kelionė, liga)",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": false
+          }
+        },
+        {
+          "key": "overall",
+          "type": "rating",
+          "label_en": "How would you rate today?",
+          "label_lt": "Kaip vertinate šią dieną?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "stage_sound",
+          "type": "rating",
+          "label_en": "Stage sound and monitors",
+          "label_lt": "Scenos garsas ir monitoriai",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "on_schedule",
+          "type": "yes_no",
+          "label_en": "Did everything run on schedule?",
+          "label_lt": "Ar viskas vyko pagal grafiką?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "delay_reason",
+          "type": "short_text",
+          "label_en": "What caused the delay?",
+          "label_lt": "Kas lėmė vėlavimą?",
+          "required": false,
+          "visible_if": {
+            "question": "on_schedule",
+            "equals": false
+          }
+        },
+        {
+          "key": "issue",
+          "type": "yes_no",
+          "label_en": "Anything that needs attention?",
+          "label_lt": "Ar yra kas nors, ką reikia spręsti?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "issue_note",
+          "type": "short_text",
+          "label_en": "What is it?",
+          "label_lt": "Kas tai?",
+          "required": false,
+          "visible_if": {
+            "question": "issue",
+            "equals": true
+          }
+        },
+        {
+          "key": "issue_photo",
+          "type": "photo",
+          "label_en": "Photo",
+          "label_lt": "Nuotrauka",
+          "required": false,
+          "visible_if": {
+            "question": "issue",
+            "equals": true
+          }
+        },
+        {
+          "key": "catering_ok",
+          "type": "yes_no",
+          "label_en": "Was catering provided for you today?",
+          "label_lt": "Ar šiandien jums buvo suteiktas maitinimas?",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "type": "long_text",
+          "label_en": "Anything else?",
+          "label_lt": "Dar kas nors?",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "group": "crew",
+      "kind": "daily",
+      "is_mandatory": true,
+      "title_en": "Daily report",
+      "title_lt": "Dienos ataskaita",
+      "questions": [
+        {
+          "key": "worked_today",
+          "type": "yes_no",
+          "label_en": "Did you work today?",
+          "label_lt": "Ar šiandien dirbote?",
+          "required": true
+        },
+        {
+          "key": "absence_reason",
+          "type": "short_text",
+          "label_en": "Why not? (day off, travel, sick)",
+          "label_lt": "Kodėl ne? (poilsio diena, kelionė, liga)",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": false
+          }
+        },
+        {
+          "key": "overall",
+          "type": "rating",
+          "label_en": "How would you rate today?",
+          "label_lt": "Kaip vertinate šią dieną?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "setup_ok",
+          "type": "yes_no",
+          "label_en": "Did set-up and load-out go to plan?",
+          "label_lt": "Ar montavimas ir išmontavimas vyko pagal planą?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "setup_note",
+          "type": "short_text",
+          "label_en": "What went differently?",
+          "label_lt": "Kas vyko kitaip?",
+          "required": false,
+          "visible_if": {
+            "question": "setup_ok",
+            "equals": false
+          }
+        },
+        {
+          "key": "local_crew",
+          "type": "rating",
+          "label_en": "Local crew and venue staff",
+          "label_lt": "Vietos komanda ir salės personalas",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "fault",
+          "type": "yes_no",
+          "label_en": "Any equipment fault or damage?",
+          "label_lt": "Ar buvo įrangos gedimų ar pažeidimų?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "fault_note",
+          "type": "short_text",
+          "label_en": "Which equipment, and what happened?",
+          "label_lt": "Kokia įranga ir kas nutiko?",
+          "required": false,
+          "visible_if": {
+            "question": "fault",
+            "equals": true
+          }
+        },
+        {
+          "key": "fault_photo",
+          "type": "photo",
+          "label_en": "Photo of the fault",
+          "label_lt": "Gedimo nuotrauka",
+          "required": false,
+          "visible_if": {
+            "question": "fault",
+            "equals": true
+          }
+        },
+        {
+          "key": "missing",
+          "type": "yes_no",
+          "label_en": "Anything missing or left behind?",
+          "label_lt": "Ar kas nors dingo arba liko vietoje?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "missing_note",
+          "type": "short_text",
+          "label_en": "What, and where?",
+          "label_lt": "Kas ir kur?",
+          "required": false,
+          "visible_if": {
+            "question": "missing",
+            "equals": true
+          }
+        },
+        {
+          "key": "catering_ok",
+          "type": "yes_no",
+          "label_en": "Was catering provided for you today?",
+          "label_lt": "Ar šiandien jums buvo suteiktas maitinimas?",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "type": "long_text",
+          "label_en": "Anything else?",
+          "label_lt": "Dar kas nors?",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "group": "production",
+      "kind": "daily",
+      "is_mandatory": true,
+      "title_en": "Daily report",
+      "title_lt": "Dienos ataskaita",
+      "questions": [
+        {
+          "key": "worked_today",
+          "type": "yes_no",
+          "label_en": "Did you work today?",
+          "label_lt": "Ar šiandien dirbote?",
+          "required": true
+        },
+        {
+          "key": "absence_reason",
+          "type": "short_text",
+          "label_en": "Why not? (day off, travel, sick)",
+          "label_lt": "Kodėl ne? (poilsio diena, kelionė, liga)",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": false
+          }
+        },
+        {
+          "key": "overall",
+          "type": "rating",
+          "label_en": "How would you rate today?",
+          "label_lt": "Kaip vertinate šią dieną?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "attendance",
+          "type": "number",
+          "label_en": "Estimated attendance",
+          "label_lt": "Apytikslis žiūrovų skaičius",
+          "required": false,
+          "validation": {
+            "min": 0,
+            "max": 200000
+          },
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "schedule_kept",
+          "type": "yes_no",
+          "label_en": "Did the day run on schedule?",
+          "label_lt": "Ar diena vyko pagal grafiką?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "schedule_note",
+          "type": "short_text",
+          "label_en": "What caused the delay?",
+          "label_lt": "Kas lėmė vėlavimą?",
+          "required": false,
+          "visible_if": {
+            "question": "schedule_kept",
+            "equals": false
+          }
+        },
+        {
+          "key": "rider_ok",
+          "type": "yes_no",
+          "label_en": "Did the promoter meet the rider?",
+          "label_lt": "Ar organizatorius įvykdė raiderio sąlygas?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "rider_note",
+          "type": "short_text",
+          "label_en": "What was missing?",
+          "label_lt": "Ko trūko?",
+          "required": false,
+          "visible_if": {
+            "question": "rider_ok",
+            "equals": false
+          }
+        },
+        {
+          "key": "incident",
+          "type": "yes_no",
+          "label_en": "Any incident to log?",
+          "label_lt": "Ar yra įvykių, kuriuos reikia užfiksuoti?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "incident_note",
+          "type": "long_text",
+          "label_en": "Describe it",
+          "label_lt": "Aprašykite",
+          "required": false,
+          "visible_if": {
+            "question": "incident",
+            "equals": true
+          }
+        },
+        {
+          "key": "incident_photo",
+          "type": "photo",
+          "label_en": "Photos",
+          "label_lt": "Nuotraukos",
+          "required": false,
+          "visible_if": {
+            "question": "incident",
+            "equals": true
+          }
+        },
+        {
+          "key": "catering_ok",
+          "type": "yes_no",
+          "label_en": "Was catering provided for you today?",
+          "label_lt": "Ar šiandien jums buvo suteiktas maitinimas?",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "type": "long_text",
+          "label_en": "Notes for tomorrow",
+          "label_lt": "Pastabos rytdienai",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "group": "chef",
+      "kind": "daily",
+      "is_mandatory": true,
+      "title_en": "Daily report",
+      "title_lt": "Dienos ataskaita",
+      "questions": [
+        {
+          "key": "worked_today",
+          "type": "yes_no",
+          "label_en": "Did you work today?",
+          "label_lt": "Ar šiandien dirbote?",
+          "required": true
+        },
+        {
+          "key": "absence_reason",
+          "type": "short_text",
+          "label_en": "Why not? (day off, travel, sick)",
+          "label_lt": "Kodėl ne? (poilsio diena, kelionė, liga)",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": false
+          }
+        },
+        {
+          "key": "meals_served",
+          "type": "number",
+          "label_en": "How many meals did you serve?",
+          "label_lt": "Kiek patiekalų patiekėte?",
+          "required": true,
+          "validation": {
+            "min": 0,
+            "max": 2000
+          },
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "on_time",
+          "type": "yes_no",
+          "label_en": "Were meals served on time?",
+          "label_lt": "Ar maistas buvo patiektas laiku?",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "late_reason",
+          "type": "short_text",
+          "label_en": "What held it up?",
+          "label_lt": "Kas sutrukdė?",
+          "required": false,
+          "visible_if": {
+            "question": "on_time",
+            "equals": false
+          }
+        },
+        {
+          "key": "kitchen",
+          "type": "rating",
+          "label_en": "Venue kitchen and facilities",
+          "label_lt": "Salės virtuvė ir patalpos",
+          "required": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "unmet_diet",
+          "type": "yes_no",
+          "label_en": "Any requirement you could not meet?",
+          "label_lt": "Ar buvo poreikių, kurių nepavyko įgyvendinti?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "unmet_diet_note",
+          "type": "short_text",
+          "label_en": "Which one, and why?",
+          "label_lt": "Koks ir kodėl?",
+          "required": false,
+          "visible_if": {
+            "question": "unmet_diet",
+            "equals": true
+          }
+        },
+        {
+          "key": "restock",
+          "type": "long_text",
+          "label_en": "What needs restocking?",
+          "label_lt": "Ko reikia papildyti?",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "catering_ok",
+          "type": "yes_no",
+          "label_en": "Was catering provided for you today?",
+          "label_lt": "Ar šiandien jums buvo suteiktas maitinimas?",
+          "required": true
+        },
+        {
+          "key": "catering_photo",
+          "type": "photo",
+          "label_en": "Photos of the catering set-up",
+          "label_lt": "Maitinimo zonos nuotraukos",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "group": "driver",
+      "kind": "daily",
+      "is_mandatory": true,
+      "title_en": "Daily report",
+      "title_lt": "Dienos ataskaita",
+      "questions": [
+        {
+          "key": "worked_today",
+          "type": "yes_no",
+          "label_en": "Did you drive today?",
+          "label_lt": "Ar šiandien vairavote?",
+          "required": true
+        },
+        {
+          "key": "absence_reason",
+          "type": "short_text",
+          "label_en": "Why not? (day off, rest day, sick)",
+          "label_lt": "Kodėl ne? (poilsio diena, liga)",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": false
+          }
+        },
+        {
+          "key": "km_driven",
+          "type": "number",
+          "label_en": "Kilometres driven",
+          "label_lt": "Nuvažiuota kilometrų",
+          "required": true,
+          "validation": {
+            "min": 0,
+            "max": 3000
+          },
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "rest_ok",
+          "type": "yes_no",
+          "label_en": "Were you able to take your legal rest?",
+          "label_lt": "Ar galėjote pailsėti pagal reikalavimus?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "rest_note",
+          "type": "short_text",
+          "label_en": "What prevented it?",
+          "label_lt": "Kas sutrukdė?",
+          "required": false,
+          "visible_if": {
+            "question": "rest_ok",
+            "equals": false
+          }
+        },
+        {
+          "key": "vehicle_ok",
+          "type": "yes_no",
+          "label_en": "Is the vehicle in good order?",
+          "label_lt": "Ar transporto priemonė tvarkinga?",
+          "required": true,
+          "opens_issue": true,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        },
+        {
+          "key": "vehicle_note",
+          "type": "short_text",
+          "label_en": "What is wrong?",
+          "label_lt": "Kas negerai?",
+          "required": false,
+          "visible_if": {
+            "question": "vehicle_ok",
+            "equals": false
+          }
+        },
+        {
+          "key": "vehicle_photo",
+          "type": "photo",
+          "label_en": "Photo",
+          "label_lt": "Nuotrauka",
+          "required": false,
+          "visible_if": {
+            "question": "vehicle_ok",
+            "equals": false
+          }
+        },
+        {
+          "key": "catering_ok",
+          "type": "yes_no",
+          "label_en": "Was catering provided for you today?",
+          "label_lt": "Ar šiandien jums buvo suteiktas maitinimas?",
+          "required": true
+        },
+        {
+          "key": "notes",
+          "type": "long_text",
+          "label_en": "Anything else? (route, parking, loading)",
+          "label_lt": "Dar kas nors? (maršrutas, stovėjimas, pakrovimas)",
+          "required": false,
+          "visible_if": {
+            "question": "worked_today",
+            "equals": true
+          }
+        }
+      ]
+    },
+    {
+      "group": null,
+      "kind": "weekly",
+      "is_mandatory": false,
+      "title_en": "Weekly check-in",
+      "title_lt": "Savaitės apžvalga",
+      "intro_en": "Optional, five minutes, once a week. It shapes how the next leg is planned.",
+      "intro_lt": "Neprivaloma, penkios minutės, kartą per savaitę. Tai lemia, kaip planuosime kitą atkarpą.",
+      "questions": [
+        {
+          "key": "week_overall",
+          "type": "rating",
+          "label_en": "How was this week overall?",
+          "label_lt": "Kaip vertinate šią savaitę apskritai?",
+          "required": true
+        },
+        {
+          "key": "workload",
+          "type": "rating",
+          "label_en": "Was the workload manageable?",
+          "label_lt": "Ar darbo krūvis buvo pakeliamas?",
+          "required": true
+        },
+        {
+          "key": "rest_sufficient",
+          "type": "yes_no",
+          "label_en": "Did you get enough rest?",
+          "label_lt": "Ar pakako poilsio?",
+          "required": true
+        },
+        {
+          "key": "accommodation",
+          "type": "rating",
+          "label_en": "Accommodation",
+          "label_lt": "Apgyvendinimas",
+          "required": false
+        },
+        {
+          "key": "travel",
+          "type": "rating",
+          "label_en": "Travel and transport",
+          "label_lt": "Kelionės ir transportas",
+          "required": false
+        },
+        {
+          "key": "catering_week",
+          "type": "rating",
+          "label_en": "Catering across the week",
+          "label_lt": "Maitinimas per savaitę",
+          "required": false
+        },
+        {
+          "key": "equipment_state",
+          "type": "rating",
+          "label_en": "State of the equipment",
+          "label_lt": "Įrangos būklė",
+          "required": false
+        },
+        {
+          "key": "unreported",
+          "type": "yes_no",
+          "label_en": "Anything broken or unresolved that has not been reported?",
+          "label_lt": "Ar yra sugedusių ar neišspręstų dalykų, apie kuriuos nepranešta?",
+          "required": true,
+          "opens_issue": true
+        },
+        {
+          "key": "unreported_note",
+          "type": "long_text",
+          "label_en": "Tell us",
+          "label_lt": "Papasakokite",
+          "required": false,
+          "visible_if": {
+            "question": "unreported",
+            "equals": true
+          }
+        },
+        {
+          "key": "what_worked",
+          "type": "long_text",
+          "label_en": "What worked well this week?",
+          "label_lt": "Kas šią savaitę pavyko gerai?",
+          "required": false
+        },
+        {
+          "key": "what_to_improve",
+          "type": "long_text",
+          "label_en": "What should we change for next week?",
+          "label_lt": "Ką reikėtų pakeisti kitai savaitei?",
+          "required": false
+        },
+        {
+          "key": "shoutout",
+          "type": "short_text",
+          "label_en": "Anyone who deserves credit?",
+          "label_lt": "Ar kas nors nusipelnė padėkos?",
+          "required": false
+        }
+      ]
+    }
+  ],
+  "invoice_form": {
+    "title_en": "Upload invoice",
+    "title_lt": "Įkelti sąskaitą",
+    "note": "Separate from the daily report. Available every day, never mandatory. Files route to the person's own invoice folder in Drive.",
+    "fields": [
+      {
+        "key": "tour_id",
+        "type": "tour_select",
+        "label_en": "Tour",
+        "label_lt": "Turas",
+        "required": true
+      },
+      {
+        "key": "spent_on",
+        "type": "date",
+        "label_en": "Date of purchase",
+        "label_lt": "Pirkimo data",
+        "required": true,
+        "default": "today"
+      },
+      {
+        "key": "description",
+        "type": "short_text",
+        "label_en": "What was it for?",
+        "label_lt": "Už ką?",
+        "required": true
+      },
+      {
+        "key": "category",
+        "type": "single_choice",
+        "label_en": "Category",
+        "label_lt": "Kategorija",
+        "required": true,
+        "options": [
+          "fuel",
+          "tolls",
+          "parking",
+          "catering",
+          "equipment",
+          "consumables",
+          "accommodation",
+          "travel",
+          "other"
+        ]
+      },
+      {
+        "key": "amount",
+        "type": "money",
+        "label_en": "Amount",
+        "label_lt": "Suma",
+        "required": true,
+        "default_currency": "EUR"
+      },
+      {
+        "key": "files",
+        "type": "file",
+        "label_en": "Receipt or invoice",
+        "label_lt": "Čekis arba sąskaita",
+        "required": true,
+        "multiple": true
+      }
+    ]
+  },
+  "_notes": {
+    "shared_keys": "worked_today, catering_ok, overall and notes are identical across every group so one day can be scored across all of them. catering_ok is asked whether or not the person worked. Never rename a key; add a new one instead.",
+    "issues": "Questions flagged opens_issue create an item on the admin issues list when answered true, open until someone closes it.",
+    "aggregation": "overall, local_crew, kitchen, week_overall, workload are the numeric series behind the trend charts.",
+    "excused_days": "worked_today = no hides every work question but the form is still submitted: absence reason + catering, then submit. The submission is stored with status 'excused' - it counts as filed, never as missed, and is shown as its own colour on the calendar. A day off still has to be marked; silence is always a miss.",
+    "length": "5-9 visible questions on a working day, 3 on a day off. Most are one tap."
+  }
+}
