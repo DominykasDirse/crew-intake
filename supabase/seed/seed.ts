@@ -207,7 +207,9 @@ for (const form of seed.forms) {
       }).select('id').single();
       fail(ins, `insert form ${label}`);
       fail(
-        await db.from('questions').insert(wanted.map((q) => ({ ...q, form_id: ins.data!.id }))),
+        await db.from('questions').insert(wanted.map((q) => ({ ...q, form_id: ins.data!.id })), {
+          defaultToNull: false,
+        }),
         `insert questions ${label}`,
       );
       fail(
@@ -265,7 +267,9 @@ for (const form of seed.forms) {
         }).select('id').single();
         fail(ins, `insert form ${label} v${v}`);
         fail(
-          await db!.from('questions').insert(wanted.map((q) => ({ ...q, form_id: ins.data!.id }))),
+          await db!.from('questions').insert(wanted.map((q) => ({ ...q, form_id: ins.data!.id })), {
+            defaultToNull: false,
+          }),
           `insert questions ${label} v${v}`,
         );
         fail(

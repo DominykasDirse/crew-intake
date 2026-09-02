@@ -37,6 +37,10 @@ function must<T>(r: { data: T; error: { message: string } | null }, what: string
   return r.data as NonNullable<T>;
 }
 
+function expectOk(r: { error: { message: string } | null }, what: string) {
+  if (r.error) throw new Error(`${what}: ${r.error.message}`);
+}
+
 const TAG = 'zz_rlstest';
 const PASSWORD = 'Rls-Test-' + crypto.randomUUID();
 const today = new Date().toISOString().slice(0, 10);
@@ -66,7 +70,7 @@ async function makePerson(
   if (ue || !u.user) throw new Error(`createUser: ${ue?.message ?? 'no user'}`);
   const id = u.user.id;
   created.users.push(id);
-  must(
+  expectOk(
     await svc.from('profiles').insert({
       user_id: id,
       first_name: first,
@@ -179,7 +183,7 @@ try {
   );
   created.forms.push(crewForm.id, otherForm.id);
 
-  must(
+  expectOk(
     await svc.from('questions').insert([
       {
         form_id: crewForm.id,
@@ -247,7 +251,7 @@ try {
         label_lt: 'Dirbote?',
         is_required: true,
       },
-    ]),
+    ], { defaultToNull: false }),
     'questions',
   );
 
@@ -255,7 +259,7 @@ try {
   const B = await makePerson('b', 'Ben', 'Crew', crewGroup.id);
   const C = await makePerson('c', 'Cy', 'Other', otherGroup.id);
   const D = await makePerson('d', 'Dee', 'Admin', null, true);
-  must(
+  expectOk(
     await svc.from('assignments').insert({
       tour_id: tour.id,
       user_id: A.id,
@@ -550,7 +554,7 @@ try {
   // ------------------------------------------------------------------ group lead
   console.log('\ngroup lead');
   {
-    must(
+    expectOk(
       await svc.from('groups').update({ lead_user_id: B.id }).eq('id', crewGroup.id),
       'set lead',
     );
