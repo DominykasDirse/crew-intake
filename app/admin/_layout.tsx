@@ -7,7 +7,7 @@ import { Body, Screen } from '@/components/ui';
 
 /**
  * Admin gate: asks the SERVER (is_admin() RPC, evaluated under RLS) every time this
- * section mounts. The value cached in the session store is a convenience for showing
+ * section mounts. The value cached in the session store only decides whether to show
  * the button; it never grants access. Every admin write is additionally checked
  * server-side by RLS policies or by the Edge Function it goes through.
  */

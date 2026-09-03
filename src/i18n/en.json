@@ -43,7 +43,7 @@
     "l2": "Reports are stored by the production office and copied to the tour's Google Drive. No ID documents, bank details or health data are ever asked for.",
     "l3": "Sharing your location with a report is optional. Declining it, or switching it off later, changes nothing about your standing.",
     "l4": "A day off still needs a report: answer “No” to “Did you work today?” and you are done in two taps.",
-    "l5": "Questions, or a mistake in your details: contact {{contact}}."
+    "l5": "Questions, or a mistake in your details? Contact: {{contact}}."
   },
   "signIn": {
     "title": "Sign in",
@@ -61,12 +61,13 @@
   },
   "today": {
     "title": "Today",
-    "hello": "Hello, {{name}}.",
+    "hello": "Hello.",
     "date": "Report date: {{date}}",
     "group": "Group: {{group}}",
     "placeholder": "The report itself arrives in the next build.",
     "settings": "Settings",
-    "admin": "Admin"
+    "admin": "Admin",
+    "name": "{{name}}"
   },
   "settings": {
     "title": "Settings",
@@ -75,7 +76,47 @@
   },
   "admin": {
     "title": "Admin",
-    "placeholder": "Admin screens arrive once the invite flow is verified.",
+    "people": "People",
+    "newPerson": "Add person",
+    "loadMore": "Load more",
+    "noTour": "No tour",
+    "status": {
+      "invited": "Invited",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "invite": {
+      "open": "Invite open",
+      "used": "Invite used",
+      "expired": "Invite expired",
+      "none": "No invite"
+    },
+    "form": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email (private address the link is sent to)",
+      "group": "Group",
+      "tour": "Tour",
+      "timezone": "Timezone",
+      "notifyAt": "Notification time HH:MM (blank = group default)",
+      "create": "Create and mint invite",
+      "working": "Creating…"
+    },
+    "person": {
+      "mint": "New invite",
+      "revoke": "Revoke invite",
+      "showQr": "Show QR",
+      "share": "Share link",
+      "linkLabel": "Invite link",
+      "tokenOnce": "Shown once. Minting again cancels this one. Expires in 7 days.",
+      "revoked": "Invite revoked.",
+      "minted": "Invite minted."
+    },
+    "errors": {
+      "email_exists": "That email already has an account.",
+      "unknown_group": "Pick a group.",
+      "bad_request": "Check the fields."
+    },
     "notAdmin": "This account is not an admin."
   }
 }

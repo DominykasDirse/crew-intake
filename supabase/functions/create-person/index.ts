@@ -24,6 +24,18 @@ type Body = {
 };
 
 const LOCALES = ['en', 'lt', 'de', 'pl'];
+
+/**
+ * The link that goes into an email. With INVITE_BASE_URL set (an https page that the
+ * Android app claims via App Links, with a browser fallback) it is
+ *   https://<host>/crew-intake/claim?token=…
+ * Until then it is the raw app scheme. Both carry the same token; the app's scanner
+ * and claim screen accept either.
+ */
+export const inviteUrl = (token: string) => {
+  const base = Deno.env.get('INVITE_BASE_URL')?.replace(/\/$/, '');
+  return base ? `${base}?token=${token}` : `crewintake://claim?token=${token}`;
+};
 const validTz = (tz: string) => {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: tz });
@@ -131,7 +143,8 @@ Deno.serve(async (req) => {
       user_id: userId,
       email,
       token,
-      invite_url: `crewintake://claim?token=${token}`,
+      invite_url: inviteUrl(token),
+      deep_link: `crewintake://claim?token=${token}`,
       expires_at: new Date(Date.now() + 7 * 86_400_000).toISOString(),
     }, 201);
   } catch (e) {

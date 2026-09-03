@@ -43,7 +43,7 @@
     "l2": "Ataskaitas saugo gamybos biuras ir kopijuoja į turo „Google Drive“. Asmens dokumentų, banko duomenų ar sveikatos informacijos niekada neprašoma.",
     "l3": "Dalytis buvimo vieta su ataskaita neprivaloma. Atsisakymas dabar ar išjungimas vėliau niekaip nekeičia jūsų padėties.",
     "l4": "Poilsio dieną ataskaita vis tiek reikalinga: prie „Ar šiandien dirbote?“ pasirinkite „Ne“ – ir viskas, du paspaudimai.",
-    "l5": "Klausimai arba klaida jūsų duomenyse: kreipkitės į {{contact}}."
+    "l5": "Klausimai arba klaida jūsų duomenyse? Kontaktas: {{contact}}."
   },
   "signIn": {
     "title": "Prisijungti",
@@ -61,12 +61,13 @@
   },
   "today": {
     "title": "Šiandien",
-    "hello": "Sveiki, {{name}}.",
+    "hello": "Sveiki.",
     "date": "Ataskaitos data: {{date}}",
     "group": "Grupė: {{group}}",
     "placeholder": "Pati ataskaita atsiras kitame leidime.",
     "settings": "Nustatymai",
-    "admin": "Administravimas"
+    "admin": "Administravimas",
+    "name": "{{name}}"
   },
   "settings": {
     "title": "Nustatymai",
@@ -75,7 +76,47 @@
   },
   "admin": {
     "title": "Administravimas",
-    "placeholder": "Administravimo langai atsiras patikrinus pakvietimų eigą.",
+    "people": "Žmonės",
+    "newPerson": "Pridėti žmogų",
+    "loadMore": "Rodyti daugiau",
+    "noTour": "Be turo",
+    "status": {
+      "invited": "Pakviesta",
+      "active": "Aktyvi paskyra",
+      "inactive": "Neaktyvi paskyra"
+    },
+    "invite": {
+      "open": "Pakvietimas galioja",
+      "used": "Pakvietimas panaudotas",
+      "expired": "Pakvietimas nebegalioja",
+      "none": "Pakvietimo nėra"
+    },
+    "form": {
+      "firstName": "Vardas",
+      "lastName": "Pavardė",
+      "email": "El. paštas (asmeninis adresas, į kurį siunčiama nuoroda)",
+      "group": "Grupė",
+      "tour": "Turas",
+      "timezone": "Laiko juosta",
+      "notifyAt": "Pranešimo laikas HH:MM (tuščia = grupės numatytasis)",
+      "create": "Sukurti ir išduoti pakvietimą",
+      "working": "Kuriama…"
+    },
+    "person": {
+      "mint": "Naujas pakvietimas",
+      "revoke": "Atšaukti pakvietimą",
+      "showQr": "Rodyti QR",
+      "share": "Bendrinti nuorodą",
+      "linkLabel": "Pakvietimo nuoroda",
+      "tokenOnce": "Rodoma vieną kartą. Naujas pakvietimas atšaukia šį. Galioja 7 dienas.",
+      "revoked": "Pakvietimas atšauktas.",
+      "minted": "Pakvietimas išduotas."
+    },
+    "errors": {
+      "email_exists": "Šis el. paštas jau turi paskyrą.",
+      "unknown_group": "Pasirinkite grupę.",
+      "bad_request": "Patikrinkite laukus."
+    },
     "notAdmin": "Ši paskyra nėra administratoriaus."
   }
 }

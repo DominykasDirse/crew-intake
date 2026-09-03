@@ -3,8 +3,14 @@
   "compilerOptions": {
     "strict": true,
     "noUncheckedIndexedAccess": true,
-    "paths": { "@/*": ["./src/*"] },
-    "types": ["jest"]
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "types": [
+      "jest"
+    ]
   },
   "include": [
     "app/**/*",
@@ -14,5 +20,9 @@
     ".expo/types/**/*.ts",
     "expo-env.d.ts"
   ],
-  "exclude": ["node_modules", "supabase", "scripts"]
+  "exclude": [
+    "node_modules",
+    "supabase",
+    "scripts"
+  ]
 }

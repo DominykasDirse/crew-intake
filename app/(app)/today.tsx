@@ -34,7 +34,8 @@ export default function Today() {
   return (
     <Screen>
       <Title>{t('today.title')}</Title>
-      <Body>{t('today.hello', { name: profile?.first_name ?? '' })}</Body>
+      <Body>{t('today.hello')}</Body>
+      <Body muted>{t('today.name', { name: profile?.full_name ?? '' })}</Body>
       <Body muted>
         {t('today.date', { date: localReportDate(new Date(), profile?.timezone ?? 'UTC') })}
       </Body>

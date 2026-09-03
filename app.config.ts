@@ -23,7 +23,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       monochromeImage: './assets/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
+    // Android App Links: https://dominykasdirse.github.io/crew-intake/claim?token=… opens the
+    // claim screen directly once /.well-known/assetlinks.json on that host lists the app's
+    // signing certificate (phase 11). Until then the same URL shows the browser fallback page.
+    intentFilters: [
+      {
+        action: 'VIEW',
+        autoVerify: true,
+        data: [{ scheme: 'https', host: 'dominykasdirse.github.io', pathPrefix: '/crew-intake/claim' }],
+        category: ['BROWSABLE', 'DEFAULT'],
+      },
+    ],
   },
+  experiments: { typedRoutes: true },
   plugins: [
     'expo-router',
     'expo-secure-store',
