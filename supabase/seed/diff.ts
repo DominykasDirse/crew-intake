@@ -82,7 +82,18 @@ export type Diff =
   | { kind: 'new_version'; reasons: string[]; inPlace: string[] }
   | { kind: 'refuse'; reasons: string[] };
 
-const same = (a: unknown, b: unknown) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null);
+/** Structural equality with object keys sorted: Postgres jsonb reorders keys, the seed file does not. */
+function canon(v: unknown): string {
+  if (v === undefined || v === null) return 'null';
+  if (Array.isArray(v)) return '[' + v.map(canon).join(',') + ']';
+  if (typeof v === 'object') {
+    const o = v as Record<string, unknown>;
+    return '{' + Object.keys(o).sort().map((k) => JSON.stringify(k) + ':' + canon(o[k])).join(',') +
+      '}';
+  }
+  return JSON.stringify(v);
+}
+const same = (a: unknown, b: unknown) => canon(a) === canon(b);
 
 export function diffQuestions(current: QuestionRow[], wanted: QuestionRow[]): Diff {
   const cur = new Map(current.map((q) => [q.key, q]));

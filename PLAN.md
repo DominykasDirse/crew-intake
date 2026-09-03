@@ -11,20 +11,20 @@ Repo: `~/crew-intake` (git initialised, no commits yet).
 
 You asked to stop after notifications. That gives us:
 
-| Phase | Name | In this build |
-|---|---|---|
-| 0 | Scaffold and CI | yes |
-| 1 | Schema and RLS — **all 13 tables** | yes |
-| 2 | Seed from `forms.seed.json` — **Crew group + one tour only** | yes |
-| 3 | `drive-sync` + `resync-drive`, tested standalone | yes |
-| 4 | Auth and invite onboarding (single person; **no XLSX bulk import**) | yes |
-| 5 | Daily report flow | yes |
-| 6 | Photos + offline queue (**EXIF strip yes, location no**) | yes |
-| 7 | Invoices | **skipped** |
-| 8 | Notifications and scheduler | yes |
-| 9 | Admin calendar, dashboards, issues list | **skipped** |
-| 10 | Exports and digests | **skipped** |
-| 11 | Build configuration | folded into 0 and 8 (a dev build is required for push) |
+| Phase | Name                                                                | In this build                                          |
+| ----- | ------------------------------------------------------------------- | ------------------------------------------------------ |
+| 0     | Scaffold and CI                                                     | yes                                                    |
+| 1     | Schema and RLS — **all 13 tables**                                  | yes                                                    |
+| 2     | Seed from `forms.seed.json` — **Crew group + one tour only**        | yes                                                    |
+| 3     | `drive-sync` + `resync-drive`, tested standalone                    | yes                                                    |
+| 4     | Auth and invite onboarding (single person; **no XLSX bulk import**) | yes                                                    |
+| 5     | Daily report flow                                                   | yes                                                    |
+| 6     | Photos + offline queue (**EXIF strip yes, location no**)            | yes                                                    |
+| 7     | Invoices                                                            | **skipped**                                            |
+| 8     | Notifications and scheduler                                         | yes                                                    |
+| 9     | Admin calendar, dashboards, issues list                             | **skipped**                                            |
+| 10    | Exports and digests                                                 | **skipped**                                            |
+| 11    | Build configuration                                                 | folded into 0 and 8 (a dev build is required for push) |
 
 Heads-up for when the weekly form is seeded: it carries `intro_en` / `intro_lt`, which
 have no column today. Add `forms.intro_en`, `forms.intro_lt` in that phase's migration.
@@ -41,7 +41,7 @@ Three things I want to flag inside the cut scope:
    admin screens for people / tours / assignments / invite / sync-health, and nothing
    else. No calendar, no dashboards, no charts.
 2. **`issues` rows still get written.** `opens_issue` fires on `fault` and `missing`
-   in the Crew form from day one; only the admin *list* is deferred. The data is
+   in the Crew form from day one; only the admin _list_ is deferred. The data is
    there when you build phase 9.
 3. **Nightly backup (req 12) — I recommend building it now, in phase 3.** Your own
    requirement says it must exist before real data does, and phase 4 is where real
@@ -61,15 +61,15 @@ EXIF stripping ships in phase 6 regardless, since photos ship in phase 6.
 
 Checked on this machine:
 
-| Tool | Version |
-|---|---|
-| Node | 26.8.1 |
-| npm | 11.19.0 |
-| Supabase CLI | 2.116.0 |
-| EAS CLI | 23.2.0 |
-| Deno | 2.9.6 (installed via brew in phase 0) |
-| PostgreSQL | 17 via brew, used only to validate migrations locally |
-| Expo latest stable | SDK **57** (`expo@57.0.19`, React Native 0.86.3) |
+| Tool               | Version                                               |
+| ------------------ | ----------------------------------------------------- |
+| Node               | 26.8.1                                                |
+| npm                | 11.19.0                                               |
+| Supabase CLI       | 2.116.0                                               |
+| EAS CLI            | 23.2.0                                                |
+| Deno               | 2.9.6 (installed via brew in phase 0)                 |
+| PostgreSQL         | 17 via brew, used only to validate migrations locally |
+| Expo latest stable | SDK **57** (`expo@57.0.19`, React Native 0.86.3)      |
 
 Supabase project ref `huodsskyppiuqzybkjhu` (EU). EAS project id
 `52529350-6421-4916-a602-d4440e49bcec`, slug `crew-intake`.
@@ -140,7 +140,7 @@ off and double-show days all work identically.
 **Report date is the person's local date**, from `profiles.timezone`, not the server's.
 
 **Versioning without orphaning answers.** `answers.question_id` points at an immutable
-`questions` row. Publishing a new form version inserts a *new* `forms` row (same
+`questions` row. Publishing a new form version inserts a _new_ `forms` row (same
 `group_id`, `version + 1`) and new `questions` rows; old rows are never mutated or
 deleted, only `is_published` flips. Existing answers keep pointing at the questions they
 were actually answered against. All reporting aggregates on `questions.key`, which is
@@ -239,17 +239,17 @@ The 13 tables do not quite cover three mechanisms you asked for. Rather than ben
 into a column that means something else, I want to add three small things — Q10, Q11, Q12:
 
 - **`invites`** (`id, user_id, token_hash, expires_at, used_at, created_by, created_at`).
-  Requirement 11 needs a single-use, short-lived, hashed token, usable as a link *or* a
+  Requirement 11 needs a single-use, short-lived, hashed token, usable as a link _or_ a
   QR code off the same token. There is nowhere to put it today. Storing the raw token
   anywhere is not acceptable; we store a SHA-256 hash and show the raw value exactly once.
 - **`drive_folders`** keyed on a **stable tuple**, not a path:
   `(tour_id, user_id, kind, report_date)` with `folder_id`, `last_name_seen`. The
-  `drive.file` scope means the Edge Function can only *see* files and folders it created
+  `drive.file` scope means the Edge Function can only _see_ files and folders it created
   itself. Keying on the tuple means a person changing their name results in a Drive
   **rename** of their existing folder, never a second folder that splits their files (C1).
 - **`notifications.report_date date`**. Requirement 7 needs "one push, one follow-up two
   hours later, then stop", deduped per person per day. A crew member notified at 23:30
-  gets the follow-up at 01:30 the *next* calendar day for the *previous* report date;
+  gets the follow-up at 01:30 the _next_ calendar day for the _previous_ report date;
   without this column the dedupe key is wrong at exactly the hour it matters most.
 
 ---
@@ -297,7 +297,7 @@ The path builder is a pure function with unit tests, shared verbatim between `dr
 and `resync-drive`.
 
 **`resync-drive`** — admin-triggered, your migration tool. Walks every `attachments` row
-in batches, rebuilds the path against the Drive root that is configured *now*, re-uploads,
+in batches, rebuilds the path against the Drive root that is configured _now_, re-uploads,
 and writes the new `drive_file_id`. Clears the `drive_folders` cache first so the tree is
 rebuilt under the new root. Runs as a resumable job (cursor in the audit log) so a timeout
 does not mean starting over.
@@ -307,12 +307,34 @@ fixture attachment, invokes the function locally, and I show you the resulting D
 
 ---
 
+### Phase 3 outcome (2026-09-03)
+
+- **Drive access probe: A, with a nuance.** With `drive.file`, the app can _create_ under
+  the hand-made root folder (parents = `DRIVE_ROOT_FOLDER_ID`) but `files.get` on that
+  folder returns 404 — it can write into it, not read or list it. Everything below the
+  root is app-created and therefore visible. `drive-probe` stays deployed as a diagnostic.
+- **Webhook without secrets in SQL.** `attachments` after-insert → `call_edge_function()`
+  → `pg_net`, with the service-role key read from **Vault** (`service_role_key`). Until that
+  Vault entry exists the trigger logs a warning and does nothing; `retry-sync` (pg_cron,
+  every 10 min) picks up `pending` rows older than 5 minutes anyway, so a missed webhook
+  heals itself.
+- **Functions:** `drive-sync`, `retry-sync`, `resync-drive` (batched, cursor, moves files
+  Storage no longer holds), `backup-db` (JSON per table + `auth_users` ids/emails +
+  manifest, 30-day retention, `fetch` for restores), `drive-probe`.
+- **Proven live:** `scripts/sync-test.ts` — upload, exact path, rename-not-duplicate (C1),
+  resync, backup run + fetch. `scripts/restore-proof.ts` restored that backup into a
+  scratch Postgres with the same migrations: every table count matched, all FKs held (C7).
+- **Seed bug found and fixed:** `diff.ts` compared `visible_if` with raw `JSON.stringify`;
+  `jsonb` reorders keys, so a plain re-run claimed a structural change and, with
+  `--allow-new-version`, created crew/daily **v2** (identical) and unpublished v1. Fixed with
+  key-canonical comparison + regression test. Nothing references either version.
+
 ## 6. Offline behaviour (phase 6)
 
 - **Drafts** — every answer change writes to persistent device storage, keyed by
   `(form_id, report_date)`. Kill the app mid-report, reopen, everything is there.
 - **Upload queue** — a persisted list of jobs `{id, localUri, questionKey, submissionId,
-  attempts, nextAttemptAt, status}`. Photos are copied into app documents storage
+attempts, nextAttemptAt, status}`. Photos are copied into app documents storage
   immediately (a `cacheDirectory` URI from the image picker can be reclaimed by iOS at
   any time). The queue survives restart, drains on app foreground and on network regain,
   and backs off `2^n` seconds capped at one hour.
@@ -409,15 +431,15 @@ crew-intake/
 
 Pure logic only, `jest` + `ts-jest`, no device needed:
 
-| Test | Covers |
-|---|---|
-| `visibility` | `visible_if` chains, cascade hide (`fault=false` hides note *and* photo), stale answers dropped on hide |
-| `closesForm` | `worked_today=false` → 3 visible questions → `EXCUSED` (see Q6) |
-| `validation` | zod built from `required` + `validation.min/max`, per type |
-| `drivePath` | all four path variables, missing city, two shows, unicode names, sanitisation, filename format |
-| `queue` | reducer: enqueue, backoff, restart rehydration, max attempts, dedupe |
-| `notifyDue` | notify_at across Vilnius/Berlin, DST switch, 23:30 → follow-up after midnight |
-| `compliance` | filed/excused/missed against `assignments`, not the roster; unassigned days are neither |
+| Test         | Covers                                                                                                  |
+| ------------ | ------------------------------------------------------------------------------------------------------- |
+| `visibility` | `visible_if` chains, cascade hide (`fault=false` hides note _and_ photo), stale answers dropped on hide |
+| `closesForm` | `worked_today=false` → 3 visible questions → `EXCUSED` (see Q6)                                         |
+| `validation` | zod built from `required` + `validation.min/max`, per type                                              |
+| `drivePath`  | all four path variables, missing city, two shows, unicode names, sanitisation, filename format          |
+| `queue`      | reducer: enqueue, backoff, restart rehydration, max attempts, dedupe                                    |
+| `notifyDue`  | notify_at across Vilnius/Berlin, DST switch, 23:30 → follow-up after midnight                           |
+| `compliance` | filed/excused/missed against `assignments`, not the roster; unassigned days are neither                 |
 
 CI (`.github/workflows/ci.yml`): `tsc --noEmit`, `eslint`, `jest`, and a grep that fails
 if any Google secret name appears outside `supabase/functions/`.
@@ -429,17 +451,17 @@ if any Google secret name appears outside `supabase/functions/`.
 Everything you listed is used as listed. These are needed but not on your list — I will
 not install any of them until you say so:
 
-| Package | Why | Alternative |
-|---|---|---|
-| `@react-native-async-storage/async-storage` | persist drafts, queue and session | `react-native-mmkv` (faster, needs dev build — which we need anyway) |
-| `expo-file-system` | keep queued photos out of a reclaimable cache dir | none |
-| `expo-localization` | device locale + timezone at first sign-in | ask the user to pick manually |
-| `@date-fns/tz` + `date-fns` | timezone math in app and tests | Luxon; or `Intl` by hand |
-| `@sentry/react-native` | you asked for Sentry | — |
-| `react-i18next` | the React bindings for i18next | — |
-| `jest`, `jest-expo`, `ts-jest`, `@types/jest` | the tests you asked for | — |
-| `eslint`, `eslint-config-expo`, `prettier` | "lint before every commit" | — |
-| `expo-crypto` | hash invite tokens on device? (server-side only if you prefer) | do it server-side |
+| Package                                       | Why                                                            | Alternative                                                          |
+| --------------------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `@react-native-async-storage/async-storage`   | persist drafts, queue and session                              | `react-native-mmkv` (faster, needs dev build — which we need anyway) |
+| `expo-file-system`                            | keep queued photos out of a reclaimable cache dir              | none                                                                 |
+| `expo-localization`                           | device locale + timezone at first sign-in                      | ask the user to pick manually                                        |
+| `@date-fns/tz` + `date-fns`                   | timezone math in app and tests                                 | Luxon; or `Intl` by hand                                             |
+| `@sentry/react-native`                        | you asked for Sentry                                           | —                                                                    |
+| `react-i18next`                               | the React bindings for i18next                                 | —                                                                    |
+| `jest`, `jest-expo`, `ts-jest`, `@types/jest` | the tests you asked for                                        | —                                                                    |
+| `eslint`, `eslint-config-expo`, `prettier`    | "lint before every commit"                                     | —                                                                    |
+| `expo-crypto`                                 | hash invite tokens on device? (server-side only if you prefer) | do it server-side                                                    |
 
 Decision: yes to all, with **`@react-native-async-storage/async-storage`** — MMKV does
 not run in Expo Go and the early screens are developed in Expo Go (C6).
@@ -498,8 +520,6 @@ before every commit. After each phase I print a **DO BY HAND** block: the exact 
 commands for you (`supabase db push`, `eas build`, secret setting, Drive folder sharing),
 and nothing else in it that I could have done myself.
 
-
-
 ---
 
 ## 13. What I am explicitly not building
@@ -509,7 +529,7 @@ data. Two places where that line gets close, and how I am holding it:
 
 - `absence_reason` is free text and someone will type "sick" into it. That is a person
   volunteering a word, not a health field: it is not typed as health data, not indexed as
-  such, not aggregated, and never charted. If you later want absence *categories*, tell me
+  such, not aggregated, and never charted. If you later want absence _categories_, tell me
   and we will make them neutral (`day off / travel / unavailable`) rather than medical.
 - Invoice categories include `catering` and `accommodation` — expense categories, not
   personal data. No bank details, no card numbers, no IBANs: an invoice is a description,

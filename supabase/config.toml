@@ -411,3 +411,22 @@ enabled = true
 # declarative_schema_path = "./schemas"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+# ---------------------------------------------------------------------------
+# Edge Functions. All share one import map; all verify the Supabase JWT at the
+# gateway and then do their own authorisation (service role or is_admin()).
+# ---------------------------------------------------------------------------
+[functions.drive-probe]
+import_map = "./functions/import_map.json"
+
+[functions.drive-sync]
+import_map = "./functions/import_map.json"
+
+[functions.retry-sync]
+import_map = "./functions/import_map.json"
+
+[functions.resync-drive]
+import_map = "./functions/import_map.json"
+
+[functions.backup-db]
+import_map = "./functions/import_map.json"

@@ -21,7 +21,7 @@ if hits=$(grep -rnE "$NAMES" $APP_PATHS 2>/dev/null); then
   echo "FAIL: secret names referenced in app code or build config:"; echo "$hits"; status=1
 fi
 if hits=$(grep -rnE "$VALUES" . --exclude-dir=node_modules --exclude-dir=.git --exclude-dir=.expo \
-      --exclude-dir=.temp --exclude='.env' --exclude='.env.*' 2>/dev/null); then
+      --exclude-dir=.temp --exclude-dir=".backup-*" --exclude='.env' --exclude='.env.*' 2>/dev/null); then
   echo "FAIL: secret-shaped values found in the repo:"; echo "$hits"; status=1
 fi
 [ "$status" -eq 0 ] && echo "secrets check: clean"

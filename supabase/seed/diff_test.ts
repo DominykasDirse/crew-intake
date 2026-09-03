@@ -120,3 +120,15 @@ Deno.test('daily form must carry a required yes_no worked_today', () => {
     })
   );
 });
+
+Deno.test('jsonb key order from Postgres does not count as a change (regression)', () => {
+  const fromDb = toRows(base).map((q) => ({
+    ...q,
+    // what PostgREST hands back: keys sorted by jsonb
+    visible_if: q.visible_if
+      ? { equals: q.visible_if.equals, question: q.visible_if.question }
+      : null,
+    validation: q.validation ? Object.fromEntries(Object.entries(q.validation).reverse()) : null,
+  }));
+  assertEquals(diffQuestions(fromDb, toRows(base)), { kind: 'identical' });
+});

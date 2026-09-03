@@ -51,3 +51,6 @@ supabase/.branches/
 
 # tests
 coverage/
+
+# fetched backups (real data) — never commit
+.backup-*/

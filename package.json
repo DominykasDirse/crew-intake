@@ -18,8 +18,11 @@
     "db:push": "supabase db push",
     "db:types": "supabase gen types typescript --project-id huodsskyppiuqzybkjhu --schema public > src/types/database.types.ts && prettier --write src/types/database.types.ts",
     "seed": "deno run --allow-net --allow-env --allow-read --env-file=.env supabase/seed/seed.ts",
-    "check:deno": "deno check scripts/*.ts supabase/seed/*.ts && deno lint && deno test supabase/seed",
-    "rls:test": "deno run --allow-net --allow-env --env-file=.env scripts/rls-test.ts"
+    "check:deno": "deno check scripts/*.ts supabase/seed/*.ts supabase/functions/*/index.ts && deno lint && deno test supabase/seed",
+    "rls:test": "deno run --allow-net --allow-env --env-file=.env scripts/rls-test.ts",
+    "sync:test": "deno run --allow-net --allow-env --allow-read --allow-write --env-file=.env scripts/sync-test.ts",
+    "restore:proof": "deno run --allow-read --allow-write --allow-run --allow-env scripts/restore-proof.ts",
+    "functions:deploy": "supabase functions deploy --use-api"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
