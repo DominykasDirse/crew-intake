@@ -3,12 +3,27 @@
 // Cache = public.drive_folders, keyed on (root, kind, tour_id, group_id, user_id,
 // report_date). A cached folder whose NAME no longer matches is renamed on Drive —
 // that is how a person's name change or a late-added city becomes a rename instead of
-// a second folder (C1). The root itself is never listed (drive.file cannot see it).
+// a second folder (C1).
+//
+// Every folder is also stamped with its identity in Drive appProperties (`ci`). If a cache
+// row is lost (manual delete, partial restore) the folder is found again BY IDENTITY, not
+// by name — so a renamed person still maps to their existing folder, and two people with
+// the same name can never be confused. Folders created before stamping are found by name
+// once and stamped then. The root itself is never listed (drive.file cannot see it).
 
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { createFolder, deleteFile, findFolder, rename } from './drive.ts';
-import type { ChainNode } from './paths.ts';
+import {
+  createFolder,
+  deleteFile,
+  findFolder,
+  findFolderByProperty,
+  rename,
+  setAppProperties,
+} from './drive.ts';
+import { type ChainNode, identityKey } from './paths.ts';
 import { fail } from './supabase.ts';
+
+export const IDENTITY_PROP = 'ci';
 
 type CacheRow = { id: string; folder_id: string; name: string };
 
@@ -31,6 +46,18 @@ async function lookup(db: SupabaseClient, root: string, n: ChainNode): Promise<C
   return r.data;
 }
 
+/** Find on Drive by identity; fall back to name for pre-stamping folders and stamp them. */
+async function findOnDrive(parentDrive: string, n: ChainNode, identity: string) {
+  const byIdentity = await findFolderByProperty(parentDrive, IDENTITY_PROP, identity);
+  if (byIdentity) return { folder: byIdentity, how: 'identity' as const };
+  const byName = await findFolder(n.name, parentDrive);
+  if (byName) {
+    await setAppProperties(byName.id, { [IDENTITY_PROP]: identity, kind: n.kind });
+    return { folder: byName, how: 'name' as const };
+  }
+  return null;
+}
+
 export async function ensureChain(
   db: SupabaseClient,
   root: string,
@@ -42,20 +69,13 @@ export async function ensureChain(
   for (const n of chain) {
     let row: CacheRow | null = await lookup(db, root, n);
 
-    if (row && row.name !== n.name) {
-      await rename(row.folder_id, n.name);
-      fail(
-        await db.from('drive_folders').update({ name: n.name }).eq('id', row.id),
-        'rename cache',
-      );
-      row = { ...row, name: n.name };
-    }
-
     if (!row) {
-      // cache miss: reuse a folder we created earlier under this parent, else create one
-      const existing = await findFolder(n.name, parentDrive);
-      const created = existing ? null : await createFolder(n.name, parentDrive);
-      const folderId = (existing ?? created)!.id;
+      const identity = await identityKey(n);
+      const found = await findOnDrive(parentDrive, n, identity);
+      const created = found
+        ? null
+        : await createFolder(n.name, parentDrive, { [IDENTITY_PROP]: identity, kind: n.kind });
+      const folder = found?.folder ?? created!;
 
       const ins: { data: CacheRow | null; error: { message: string } | null } = await db
         .from('drive_folders')
@@ -67,8 +87,8 @@ export async function ensureChain(
           group_id: n.group_id,
           user_id: n.user_id,
           report_date: n.report_date,
-          name: n.name,
-          folder_id: folderId,
+          name: folder.name, // what Drive has right now; renamed below if it differs
+          folder_id: folder.id,
         })
         .select('id,folder_id,name')
         .single();
@@ -85,6 +105,15 @@ export async function ensureChain(
     }
 
     if (!row) throw new Error(`drive_folders: could not resolve ${n.kind}`);
+
+    if (row.name !== n.name) {
+      await rename(row.folder_id, n.name);
+      fail(
+        await db.from('drive_folders').update({ name: n.name }).eq('id', row.id),
+        'rename cache',
+      );
+    }
+
     parentDrive = row.folder_id;
     parentCache = row.id;
   }

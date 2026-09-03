@@ -109,15 +109,72 @@ export async function findFolder(name: string, parentId: string | null): Promise
   return j.files[0] ?? null;
 }
 
-export async function createFolder(name: string, parentId: string | null): Promise<DriveFile> {
+export async function createFolder(
+  name: string,
+  parentId: string | null,
+  appProperties?: Record<string, string>,
+): Promise<DriveFile> {
   const meta: Record<string, unknown> = { name, mimeType: FOLDER_MIME };
   if (parentId) meta.parents = [parentId];
+  if (appProperties) meta.appProperties = appProperties;
   const res = await driveFetch(`${API}/files?fields=id,name,parents&supportsAllDrives=true`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(meta),
   }, 'create-folder');
   return res.json();
+}
+
+/** Folder under `parentId` whose appProperties[key] === value. Exact, app-private, name-independent. */
+export async function findFolderByProperty(
+  parentId: string,
+  key: string,
+  value: string,
+): Promise<DriveFile | null> {
+  const parts = [
+    `mimeType='${FOLDER_MIME}'`,
+    'trashed=false',
+    `'${q(parentId)}' in parents`,
+    `appProperties has { key='${q(key)}' and value='${q(value)}' }`,
+  ];
+  const url = `${API}/files?q=${
+    encodeURIComponent(parts.join(' and '))
+  }&fields=files(id,name,parents)&pageSize=5&supportsAllDrives=true&includeItemsFromAllDrives=true`;
+  const j = (await (await driveFetch(url, {}, 'find-by-property')).json()) as {
+    files: DriveFile[];
+  };
+  return j.files[0] ?? null;
+}
+
+export async function setAppProperties(
+  id: string,
+  appProperties: Record<string, string>,
+): Promise<void> {
+  await driveFetch(`${API}/files/${encodeURIComponent(id)}?supportsAllDrives=true`, {
+    method: 'PATCH',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ appProperties }),
+  }, 'set-properties');
+}
+
+/** Non-trashed children of a folder (files and folders), all pages. */
+export async function listChildren(parentId: string): Promise<DriveFile[]> {
+  const out: DriveFile[] = [];
+  let pageToken = '';
+  do {
+    const url = `${API}/files?q=${
+      encodeURIComponent(`'${q(parentId)}' in parents and trashed=false`)
+    }&fields=nextPageToken,files(id,name,mimeType,parents)&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true${
+      pageToken ? `&pageToken=${pageToken}` : ''
+    }`;
+    const j = (await (await driveFetch(url, {}, 'list')).json()) as {
+      files: DriveFile[];
+      nextPageToken?: string;
+    };
+    out.push(...j.files);
+    pageToken = j.nextPageToken ?? '';
+  } while (pageToken);
+  return out;
 }
 
 export async function rename(id: string, name: string): Promise<void> {

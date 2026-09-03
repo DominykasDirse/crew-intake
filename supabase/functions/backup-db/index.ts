@@ -10,7 +10,7 @@
 // profiles can be re-linked on restore. Passwords are never backed up — after a restore,
 // people get new invites.
 
-import { deleteFile, driveFetch, uploadFile } from '../_shared/drive.ts';
+import { deleteFile, driveFetch, listChildren, uploadFile } from '../_shared/drive.ts';
 import { ensureChain, rootFolderId } from '../_shared/folders.ts';
 import { json } from '../_shared/http.ts';
 import { backupChain, localDate } from '../_shared/paths.ts';
@@ -82,12 +82,15 @@ async function run(db: ReturnType<typeof serviceClient>) {
   const counts: Record<string, number> = {};
   const files: Record<string, string> = {};
 
+  // a re-run on the same date REPLACES each file (PATCH by name) instead of adding copies
+  const existing = new Map((await listChildren(leaf)).map((f) => [f.name, f.id]));
   const put = async (name: string, data: unknown) => {
     const f = await uploadFile({
       name,
       mime: 'application/json',
       bytes: enc.encode(JSON.stringify(data)),
       parentId: leaf,
+      fileId: existing.get(name),
     });
     files[name] = f.id;
   };

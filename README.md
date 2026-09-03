@@ -33,7 +33,9 @@ data to `profiles` is `ON DELETE RESTRICT`.
 
 `drive-sync` (webhook + admin retry), `retry-sync` (cron, 10 min), `resync-drive` (admin
 migration to a new Drive root), `backup-db` (cron, nightly 03:15 UTC; `run` / `list` /
-`fetch`), `drive-probe` (diagnostic). The webhook and cron call functions through
+`fetch`), `drive-probe` (diagnostic; also `list` / `delete` for housekeeping of app-created folders).
+Person folders are `Lastname_Firstname (6-hex code)`; folders carry their identity in Drive
+`appProperties`, so a lost cache row never creates a duplicate. The webhook and cron call functions through
 `call_edge_function()`, which reads the service-role key from Vault (`service_role_key`).
 
 ## Secrets

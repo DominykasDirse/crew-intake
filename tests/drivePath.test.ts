@@ -5,6 +5,7 @@ import {
   fileName,
   invoiceChain,
   localTimeHHmm,
+  personCode,
   personFolder,
   reportChain,
   sanitizeSegment,
@@ -13,7 +14,16 @@ import {
 
 const tour = { id: 't1', code: 'T1', name: 'Tour 1' };
 const crew = { id: 'g1', name_en: 'Crew' };
-const jonas = { user_id: 'u1', first_name: 'Jonas', last_name: 'Vaitkus' };
+const jonas = {
+  user_id: '7f3a1c2e-0000-4000-8000-000000000001',
+  first_name: 'Jonas',
+  last_name: 'Vaitkus',
+};
+const jonas2 = {
+  user_id: 'b9e0d4aa-0000-4000-8000-000000000002',
+  first_name: 'Jonas',
+  last_name: 'Vaitkus',
+};
 
 type Identity = {
   kind: string;
@@ -34,7 +44,7 @@ describe('drive path builder', () => {
       group: crew,
       person: jonas,
     });
-    expect(chainPath(chain)).toBe('T1 Tour 1/reports/2026-11-03 Riga/Crew/Vaitkus_Jonas');
+    expect(chainPath(chain)).toBe('T1 Tour 1/reports/2026-11-03 Riga/Crew/Vaitkus_Jonas (7f3a1c)');
     expect(chain.map((n) => n.kind)).toEqual(['tour', 'reports', 'date', 'group', 'person']);
   });
 
@@ -43,7 +53,7 @@ describe('drive path builder', () => {
     expect(dateFolder('2026-11-04', '   ')).toBe('2026-11-04');
     expect(
       chainPath(reportChain({ tour, reportDate: '2026-11-04', group: crew, person: jonas })),
-    ).toBe('T1 Tour 1/reports/2026-11-04/Crew/Vaitkus_Jonas');
+    ).toBe('T1 Tour 1/reports/2026-11-04/Crew/Vaitkus_Jonas (7f3a1c)');
   });
 
   it('caches folders on identity, not name: same tuple whatever the name (C1)', () => {
@@ -64,14 +74,31 @@ describe('drive path builder', () => {
     expect(a.map(identity)).toEqual(b.map(identity)); // → rename, never a second folder
     expect(a[2]?.name).toBe('2026-11-03');
     expect(b[2]?.name).toBe('2026-11-03 Riga');
-    expect(b[4]?.name).toBe('Vaitkienė_Jonas');
+    expect(b[4]?.name).toBe('Vaitkienė_Jonas (7f3a1c)');
   });
 
-  it('person folder is Lastname_Firstname from the two columns, never split (Q9)', () => {
-    expect(personFolder('Jonas', 'Vaitkus')).toBe('Vaitkus_Jonas');
-    expect(personFolder('Jonas Petras', 'Van der Berg')).toBe('Van-der-Berg_Jonas-Petras');
-    expect(personFolder('Anne_Marie', "O'Neil")).toBe("O'Neil_Anne-Marie");
-    expect(personFolder('  ', 'X')).toBe('X_unknown');
+  it('person folder is "Lastname_Firstname (code)" from the two columns, never split (Q9)', () => {
+    expect(personCode('7f3a1c2e-0000-4000-8000-000000000001')).toBe('7f3a1c');
+    expect(personFolder('Jonas', 'Vaitkus', jonas.user_id)).toBe('Vaitkus_Jonas (7f3a1c)');
+    expect(personFolder('Jonas Petras', 'Van der Berg', jonas.user_id)).toBe(
+      'Van-der-Berg_Jonas-Petras (7f3a1c)',
+    );
+    expect(personFolder('Anne_Marie', "O'Neil", jonas.user_id)).toBe("O'Neil_Anne-Marie (7f3a1c)");
+    expect(personFolder('  ', 'X', jonas.user_id)).toBe('X_unknown (7f3a1c)');
+  });
+
+  it('two people with the same name in one group get distinct folders and identities', () => {
+    const a = reportChain({ tour, reportDate: '2026-11-03', group: crew, person: jonas });
+    const b = reportChain({ tour, reportDate: '2026-11-03', group: crew, person: jonas2 });
+    expect(a[4]?.name).toBe('Vaitkus_Jonas (7f3a1c)');
+    expect(b[4]?.name).toBe('Vaitkus_Jonas (b9e0d4)');
+    expect(a[4]?.name).not.toBe(b[4]?.name);
+    expect(identity(a[4]!)).not.toBe(identity(b[4]!));
+    // everything above the person level is shared
+    expect(a.slice(0, 4).map(identity)).toEqual(b.slice(0, 4).map(identity));
+    expect(chainPath(invoiceChain({ tour, person: jonas2 }))).toBe(
+      'T1 Tour 1/invoices/Vaitkus_Jonas (b9e0d4)',
+    );
   });
 
   it('tour folder is "{code} {name}" (Q7); unassigned reports go under _unassigned', () => {
@@ -79,16 +106,16 @@ describe('drive path builder', () => {
     expect(tourFolder(null)).toBe('_unassigned');
     const chain = reportChain({ tour: null, reportDate: '2026-11-03', group: null, person: jonas });
     expect(chain[0]?.tour_id).toBeNull();
-    expect(chainPath(chain)).toBe('_unassigned/reports/2026-11-03/_nogroup/Vaitkus_Jonas');
+    expect(chainPath(chain)).toBe('_unassigned/reports/2026-11-03/_nogroup/Vaitkus_Jonas (7f3a1c)');
   });
 
   it('invoice chain and backup chain', () => {
     expect(chainPath(invoiceChain({ tour, person: jonas }))).toBe(
-      'T1 Tour 1/invoices/Vaitkus_Jonas',
+      'T1 Tour 1/invoices/Vaitkus_Jonas (7f3a1c)',
     );
     expect(invoiceChain({ tour, person: jonas })[2]).toMatchObject({
       kind: 'person',
-      user_id: 'u1',
+      user_id: jonas.user_id,
       group_id: null,
       report_date: null,
     });

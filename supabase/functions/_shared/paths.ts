@@ -28,10 +28,19 @@ export function sanitizeSegment(raw: string | null | undefined, fallback = '_'):
   return s.length ? s : fallback;
 }
 
-/** "Vaitkus_Jonas"; inner spaces and underscores become hyphens so the two parts stay separable. */
-export function personFolder(firstName: string, lastName: string): string {
+/** Short stable code from the person id: 6 hex chars (16.7M values; 4 would collide ~30% of the time across 200 people). */
+export function personCode(userId: string): string {
+  return userId.replace(/-/g, '').slice(0, 6).toLowerCase();
+}
+
+/**
+ * "Vaitkus_Jonas (7f3a1c)". Inner spaces/underscores become hyphens so the two name parts
+ * stay separable; the code keeps two people with the same name apart and makes the
+ * folder findable after a rename.
+ */
+export function personFolder(firstName: string, lastName: string, userId: string): string {
   const part = (x: string) => sanitizeSegment(x, 'unknown').replace(/[\s_]+/g, '-');
-  return `${part(lastName)}_${part(firstName)}`;
+  return `${part(lastName)}_${part(firstName)} (${personCode(userId)})`;
 }
 
 export function tourFolder(tour: { code: string; name: string } | null): string {
@@ -129,7 +138,7 @@ export function reportChain(i: {
       group_id,
       report_date: i.reportDate,
     }),
-    node('person', personFolder(i.person.first_name, i.person.last_name), {
+    node('person', personFolder(i.person.first_name, i.person.last_name, i.person.user_id), {
       tour_id,
       group_id,
       user_id: i.person.user_id,
@@ -143,7 +152,7 @@ export function invoiceChain(i: { tour: TourRef; person: PersonRef }): ChainNode
   return [
     node('tour', tourFolder(i.tour), { tour_id }),
     node('invoices', 'invoices', { tour_id }),
-    node('person', personFolder(i.person.first_name, i.person.last_name), {
+    node('person', personFolder(i.person.first_name, i.person.last_name, i.person.user_id), {
       tour_id,
       user_id: i.person.user_id,
     }),
@@ -156,3 +165,21 @@ export function backupChain(date: string): ChainNode[] {
 
 /** For logs and the sync-health screen: the human path under ROOT. */
 export const chainPath = (chain: ChainNode[]) => chain.map((n) => n.name).join('/');
+
+/**
+ * What a folder IS, independent of its name — stamped into Drive appProperties at creation
+ * so a lost cache row can find the folder again even after a rename. Hashed because
+ * appProperties values are limited to ~124 bytes.
+ */
+export function identityString(n: ChainNode): string {
+  return [n.kind, n.tour_id ?? '', n.group_id ?? '', n.user_id ?? '', n.report_date ?? ''].join(
+    '|',
+  );
+}
+
+export async function identityKey(n: ChainNode): Promise<string> {
+  const bytes = new TextEncoder().encode(identityString(n));
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return Array.from(new Uint8Array(digest).slice(0, 16)).map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}

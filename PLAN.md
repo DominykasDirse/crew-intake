@@ -287,14 +287,23 @@ Four things here are underspecified — Q7, Q8, Q9:
 - `{city}` — comes from `shows` for that tour+date, which is optional. Default: on a date
   with no show, the folder is just `{date}` with no trailing space. With two shows, the
   lowest `sequence` wins.
-- `{Lastname_Firstname}` — from `profiles.last_name` and `profiles.first_name`, spaces
-  inside each part turned into hyphens. `full_name` is never split (Q9/C9).
+- `{Lastname_Firstname (code)}` — from `profiles.last_name` and `profiles.first_name`, spaces
+  inside each part turned into hyphens, plus a stable 6-hex code from the person id, e.g.
+  `Petrauskas_Jonas (7f3a1c)`. The code keeps two people with the same name apart (4 hex
+  would collide ~30% of the time across 200 people) and lets a folder be found after a
+  rename. `full_name` is never split (Q9/C9).
 - `{time}` — `HHmm` in the person's local timezone at submit.
 
 Everything is sanitised: control characters and `/` `\` stripped, whitespace collapsed,
 leading/trailing dots removed, truncated to 120 chars per segment, original extension kept.
 The path builder is a pure function with unit tests, shared verbatim between `drive-sync`
 and `resync-drive`.
+
+**Folder identity lives on Drive too.** Every folder the app creates is stamped with a
+hash of its identity tuple in Drive `appProperties`. On a `drive_folders` cache miss the
+folder is found by that stamp, not by name — so a lost cache row plus a renamed person still
+resolves to the existing folder (which is then renamed), and two people with the same name
+can never be confused. Pre-stamp folders are found by name once and stamped.
 
 **`resync-drive`** — admin-triggered, your migration tool. Walks every `attachments` row
 in batches, rebuilds the path against the Drive root that is configured _now_, re-uploads,
