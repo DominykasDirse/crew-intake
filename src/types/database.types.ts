@@ -874,6 +874,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      call_edge_function: {
+        Args: { p_body?: Json; p_name: string };
+        Returns: number;
+      };
       compliance_summary: {
         Args: { p_from: string; p_to: string; p_user_id: string };
         Returns: Json;
@@ -883,6 +887,7 @@ export type Database = {
         Args: { p_report_date: string; p_timezone: string };
         Returns: string;
       };
+      invite_state: { Args: { p_user_id: string }; Returns: string };
       invoice_editable: { Args: { p_invoice_id: string }; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
       is_lead_of: { Args: { p_user_id: string }; Returns: boolean };
@@ -894,6 +899,7 @@ export type Database = {
       };
       my_group_id: { Args: never; Returns: string };
       my_timezone: { Args: never; Returns: string };
+      project_url: { Args: never; Returns: string };
       report_calendar: {
         Args: { p_from: string; p_to: string; p_user_id: string };
         Returns: {
@@ -904,6 +910,7 @@ export type Database = {
           submission_id: string;
         }[];
       };
+      revoke_invite: { Args: { p_user_id: string }; Returns: number };
       submission_editable: {
         Args: { p_submission_id: string };
         Returns: boolean;

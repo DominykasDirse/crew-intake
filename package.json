@@ -22,7 +22,9 @@
     "rls:test": "deno run --allow-net --allow-env --env-file=.env scripts/rls-test.ts",
     "sync:test": "deno run --allow-net --allow-env --allow-read --allow-write --env-file=.env scripts/sync-test.ts",
     "restore:proof": "deno run --allow-read --allow-write --allow-run --allow-env scripts/restore-proof.ts",
-    "functions:deploy": "supabase functions deploy --use-api"
+    "functions:deploy": "supabase functions deploy --use-api",
+    "auth:test": "deno run --allow-net --allow-env --env-file=.env scripts/auth-test.ts",
+    "bootstrap": "deno run --allow-net --allow-env --allow-run --allow-write --allow-read --env-file=.env scripts/bootstrap-admin.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

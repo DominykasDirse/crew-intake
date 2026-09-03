@@ -430,3 +430,9 @@ import_map = "./functions/import_map.json"
 
 [functions.backup-db]
 import_map = "./functions/import_map.json"
+
+[functions.create-person]
+import_map = "./functions/import_map.json"
+
+[functions.claim-invite]
+import_map = "./functions/import_map.json"

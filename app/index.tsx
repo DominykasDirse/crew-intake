@@ -1,18 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Redirect } from 'expo-router';
 
-import { localReportDate } from '@/lib/reportDate';
+import { useSession } from '@/store/session';
 
 export default function Index() {
-  return (
-    <View style={styles.root}>
-      <Text style={styles.title}>Crew Intake</Text>
-      <Text style={styles.sub}>{localReportDate(new Date(), 'Europe/Vilnius')}</Text>
-    </View>
-  );
+  const session = useSession((s) => s.session);
+  return <Redirect href={session ? '/today' : '/welcome'} />;
 }
-
-const styles = StyleSheet.create({
-  root: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#111' },
-  title: { color: '#fff', fontSize: 32, fontWeight: '700' },
-  sub: { color: '#aaa', fontSize: 18, marginTop: 8 },
-});

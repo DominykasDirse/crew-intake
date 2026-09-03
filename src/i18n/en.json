@@ -1,0 +1,81 @@
+{
+  "common": {
+    "continue": "Continue",
+    "back": "Back",
+    "cancel": "Cancel",
+    "loading": "Loading…",
+    "language": "Language",
+    "english": "English",
+    "lithuanian": "Lietuvių"
+  },
+  "welcome": {
+    "title": "Crew Intake",
+    "subtitle": "Daily reports for the tour.",
+    "scan": "Scan invite QR code",
+    "enterLink": "Enter invite link",
+    "signIn": "Sign in"
+  },
+  "scan": {
+    "hint": "Point the camera at the invite QR code.",
+    "permission": "Camera access is needed to scan the invite.",
+    "allow": "Allow camera",
+    "notAnInvite": "That code is not an invite."
+  },
+  "claim": {
+    "title": "Set up your account",
+    "tokenLabel": "Invite link or code",
+    "tokenPlaceholder": "Paste the invite link here",
+    "password": "Choose a password",
+    "confirm": "Repeat the password",
+    "hint": "At least {{min}} characters.",
+    "finish": "Create my account",
+    "working": "Setting up…",
+    "errors": {
+      "tooShort": "At least {{min}} characters.",
+      "tooLong": "Too long.",
+      "mismatch": "The two passwords differ.",
+      "noToken": "Paste your invite link or code first."
+    }
+  },
+  "notice": {
+    "title": "Before you start",
+    "l1": "Each day you file a short report: a few yes/no answers, ratings, a note, and a photo if something is wrong.",
+    "l2": "Reports are stored by the production office and copied to the tour's Google Drive. No ID documents, bank details or health data are ever asked for.",
+    "l3": "Sharing your location with a report is optional. Declining it, or switching it off later, changes nothing about your standing.",
+    "l4": "A day off still needs a report: answer “No” to “Did you work today?” and you are done in two taps.",
+    "l5": "Questions, or a mistake in your details: contact {{contact}}."
+  },
+  "signIn": {
+    "title": "Sign in",
+    "email": "Email",
+    "password": "Password",
+    "button": "Sign in",
+    "wrong": "Wrong email or password."
+  },
+  "errors": {
+    "invalid_or_used": "This invite has already been used or has expired. Ask your admin for a new one.",
+    "try_again": "Could not finish just now. Check your connection and try again.",
+    "bad_request": "Something in the form is not right. Check it and try again.",
+    "network": "No connection. Try again when you are back online.",
+    "unknown": "Something went wrong. Try again."
+  },
+  "today": {
+    "title": "Today",
+    "hello": "Hello, {{name}}.",
+    "date": "Report date: {{date}}",
+    "group": "Group: {{group}}",
+    "placeholder": "The report itself arrives in the next build.",
+    "settings": "Settings",
+    "admin": "Admin"
+  },
+  "settings": {
+    "title": "Settings",
+    "signOut": "Sign out",
+    "saved": "Saved."
+  },
+  "admin": {
+    "title": "Admin",
+    "placeholder": "Admin screens arrive once the invite flow is verified.",
+    "notAdmin": "This account is not an admin."
+  }
+}

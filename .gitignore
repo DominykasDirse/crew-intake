@@ -54,3 +54,6 @@ coverage/
 
 # fetched backups (real data) — never commit
 .backup-*/
+
+# invite QR images produced by npm run bootstrap
+invite-*.png

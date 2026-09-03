@@ -72,5 +72,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     eas: { projectId: EAS_PROJECT_ID },
     router: {},
+    // shown in the onboarding notice: who to contact. Plain text, not a secret.
+    supportContact: process.env.EXPO_PUBLIC_SUPPORT_CONTACT ?? 'your tour manager',
   },
 });
