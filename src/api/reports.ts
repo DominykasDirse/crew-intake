@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import type { Form, Question } from '@/forms/types';
 import { type CalendarRow, streakFrom } from '@/lib/streak';
+import { useUploads } from '@/offline/uploadsStore';
 import { useLocal } from '@/store/local';
 
 import { supabase, type Tables } from './supabase';
@@ -122,6 +123,7 @@ export function useSubmission(
         .eq('report_date', date)
         .maybeSingle();
       if (s.error) throw s.error;
+      if (s.data) useUploads.getState().rememberSubmission(formId!, date, s.data.id);
       return s.data;
     },
   });

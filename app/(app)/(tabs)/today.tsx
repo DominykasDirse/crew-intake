@@ -18,6 +18,8 @@ import { workingDayScreenCount } from '@/forms/screens';
 import { addDays, editDeadline, isEditable, localHHmm, longDate, timeLeft } from '@/lib/dates';
 import { localReportDate } from '@/lib/reportDate';
 import { useOutboxItem } from '@/offline/outboxStore';
+import { unfinishedCount } from '@/offline/uploads';
+import { useUploads } from '@/offline/uploadsStore';
 import { draftKey, useLocal } from '@/store/local';
 import { useSession } from '@/store/session';
 import { colors, fonts, radius, type } from '@/theme';
@@ -42,6 +44,9 @@ export default function Today() {
     form.data ? s.drafts[draftKey(form.data.form.id, today)] : undefined,
   );
   const outboxItem = useOutboxItem(form.data?.form.id, today);
+  const pendingPhotos = useUploads((s) =>
+    form.data ? unfinishedCount(s.uploads, form.data.form.id, today) : 0,
+  );
 
   const groupName = useGroupName(profile?.group_id);
   const kicker = [ctx.data?.tour?.code, ctx.data?.tour?.name, groupName]
@@ -149,7 +154,7 @@ export default function Today() {
                         : (sub.data?.is_late ?? outboxItem?.isLate)
                           ? t('home.late')
                           : t('home.onTime')
-                    }`}
+                    }${pendingPhotos > 0 ? ` · ${t('home.photosUploading', { count: pendingPhotos })}` : ''}`}
               </Text>
               <View style={s.divider} />
               <Pressable

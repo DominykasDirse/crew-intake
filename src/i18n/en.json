@@ -110,7 +110,10 @@
       "linkLabel": "Invite link",
       "tokenOnce": "Shown once. Minting again cancels this one. Expires in 7 days.",
       "revoked": "Invite revoked.",
-      "minted": "Invite minted."
+      "minted": "Invite minted.",
+      "tours": "Tours",
+      "unassign": "Remove",
+      "assignTo": "Assign to {{tour}}"
     },
     "errors": {
       "email_exists": "That email already has an account.",
@@ -150,7 +153,9 @@
     "streakCaption": "Days in a row you have filed or marked a day off.",
     "queued": "queued · sends when back online",
     "sendFailed": "could not send · open to retry",
-    "seeSentEdit": "See what you sent · change until {{time}}"
+    "seeSentEdit": "See what you sent · change until {{time}}",
+    "photosUploading_one": "{{count}} photo uploading",
+    "photosUploading_other": "{{count}} photos uploading"
   },
   "runner": {
     "next": "Next",
@@ -183,7 +188,6 @@
     "range": "Between {{min}} and {{max}}.",
     "photo": {
       "add": "Add",
-      "nextBuild": "Photos arrive in the next build. You can skip this for now.",
       "privacy": "Photos are resized before sending, and location data is removed from them."
     },
     "dayOff": {
@@ -220,7 +224,10 @@
     "failedNote": "Could not send: {{reason}}",
     "retry": "Try sending again",
     "editReport": "Change this report",
-    "closed": "Changes closed at {{time}}. Ask an admin if something is wrong."
+    "closed": "Changes closed at {{time}}. Ask an admin if something is wrong.",
+    "photoCount_one": "{{count}} photo",
+    "photoCount_other": "{{count}} photos",
+    "photoCount_zero": "No photo"
   },
   "history": {
     "lastDays": "Last {{n}} days",
@@ -253,6 +260,27 @@
       "missed": "MISSED",
       "queued": "SYNCING",
       "failed": "FAILED"
-    }
+    },
+    "notePhotos_one": "{{count}} photo is still uploading. You can close the app — it will finish on its own.",
+    "notePhotos_other": "{{count}} photos are still uploading. You can close the app — they will finish on their own."
+  },
+  "photo": {
+    "photo": "Photo",
+    "add": "Add",
+    "addTitle": "Add a photo",
+    "takePhoto": "Take a photo",
+    "fromGallery": "Choose from gallery",
+    "queued": "QUEUED",
+    "waitingReport": "AFTER REPORT",
+    "uploading": "SENDING",
+    "sent": "SENT",
+    "onDrive": "ON DRIVE",
+    "driveRetrying": "DRIVE RETRY",
+    "retry": "RETRY",
+    "noSignal": "No signal. Photos will send themselves when you are back online.",
+    "permissionTitle": "Camera access",
+    "permissionBody": "Allow camera or photo access in the phone settings to attach a photo.",
+    "removeTitle": "Remove this photo?",
+    "remove": "Remove"
   }
 }

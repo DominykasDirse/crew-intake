@@ -19,6 +19,8 @@ import type { Answers, Question } from '@/forms/types';
 import { pruneAnswers, visibleQuestions } from '@/forms/visibility';
 import { editDeadline, isEditable, localHHmm, longDate } from '@/lib/dates';
 import { useOutbox, useOutboxItem } from '@/offline/outboxStore';
+import { photosFor } from '@/offline/uploads';
+import { useUploads } from '@/offline/uploadsStore';
 import { useLocal } from '@/store/local';
 import { useSession } from '@/store/session';
 import { colors, fonts, type } from '@/theme';
@@ -39,6 +41,10 @@ export default function Review() {
   const outboxItem = useOutboxItem(formId, date ?? '');
   const enqueue = useOutbox((s) => s.enqueue);
   const retryNow = useOutbox((s) => s.retryNow);
+  const uploads = useUploads((s) => s.uploads);
+  const pruneHidden = useUploads((s) => s.pruneHidden);
+  const photoCount = (key: string) =>
+    formId ? photosFor(uploads, formId, date ?? '', key).length : 0;
   const server = useSubmission(profile?.user_id, formId, date ?? '');
 
   // answers to show: draft > outbox > server
@@ -79,6 +85,17 @@ export default function Review() {
   const send = () => {
     if (!formId || !draft) return;
     const pruned = pruneAnswers(questions, draft.answers);
+    // photos ride separately: record how many were attached, drop any for questions now hidden
+    for (const q of visible)
+      if (q.type === 'photo')
+        pruned[q.key] = {
+          photos: photosFor(uploads, formId, date, q.key).map((p) => p.id),
+        } as never;
+    pruneHidden(
+      formId,
+      date,
+      visible.map((q) => q.key),
+    );
     enqueue(formId, date, pruned); // persisted before the draft goes
     clearDraft(formId, date);
     router.replace(`/report/${date}/sent`);
@@ -119,7 +136,11 @@ export default function Review() {
           <View key={q.key} style={s.row}>
             <View style={{ flex: 1, gap: 3 }}>
               <Text style={s.rowLabel}>{questionLabel(q, i18n.language)}</Text>
-              <Text style={s.rowValue}>{formatAnswer(q, answers[q.key], t)}</Text>
+              <Text style={s.rowValue}>
+                {q.type === 'photo'
+                  ? t('review.photoCount', { count: photoCount(q.key) })
+                  : formatAnswer(q, answers[q.key], t)}
+              </Text>
             </View>
             {mode === 'draft' && (
               <Pressable

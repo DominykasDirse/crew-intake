@@ -8,8 +8,9 @@ import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } fr
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { usePublishedForm } from '@/api/reports';
-import { CameraIcon, WarningIcon } from '@/components/icons';
+import { WarningIcon } from '@/components/icons';
 import { NextBar, ProgressHeader } from '@/components/report/chrome';
+import { PhotoGrid } from '@/components/report/PhotoGrid';
 import {
   ChipChoice,
   NumberField,
@@ -22,6 +23,7 @@ import { ABSENCE_PRESETS, type AbsencePreset } from '@/forms/status';
 import type { Answers, AnswerValue, Question } from '@/forms/types';
 import { parseNumber, validateAll, type ValidationError } from '@/forms/validation';
 import { byKeyMap, isVisible, visibleQuestions } from '@/forms/visibility';
+import { useUploads } from '@/offline/uploadsStore';
 import { useLocal } from '@/store/local';
 import { useSession } from '@/store/session';
 import { colors, fonts, radius, type } from '@/theme';
@@ -81,6 +83,7 @@ function RunnerBody({
   const setAnswerLocal = useLocal((s) => s.setAnswer);
   const setScreenIndex = useLocal((s) => s.setScreenIndex);
   const draft = useLocal((s) => s.drafts[`${formId}|${date}`]);
+  const knownSubmissionId = useUploads((s) => s.knownSubmissions[`${formId}|${date}`] ?? null);
 
   useEffect(() => {
     startDraft(formId, date);
@@ -274,14 +277,13 @@ function RunnerBody({
           kicker={`${t('runner.kind.photos')} · ${t('runner.optional')}`}
           text={label(q)}
         />
-        <View style={s.photoTile}>
-          <CameraIcon size={22} color={colors.muted} />
-          <Text style={{ fontFamily: fonts.sans400, fontSize: 11, color: colors.muted }}>
-            {t('runner.photo.add')}
-          </Text>
-        </View>
-        <Text style={s.note}>{t('runner.photo.nextBuild')}</Text>
-        <Text style={s.note}>{t('runner.photo.privacy')}</Text>
+        <PhotoGrid
+          formId={formId}
+          reportDate={date}
+          questionKey={q.key}
+          questionId={q.id}
+          submissionId={knownSubmissionId}
+        />
       </View>
     );
   } else {
@@ -424,18 +426,6 @@ const s = StyleSheet.create({
   followBox: { gap: 16, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 22 },
   followLabel: { fontFamily: fonts.sans600, fontSize: 14, color: colors.text2 },
   note: { fontFamily: fonts.sans400, fontSize: 12, lineHeight: 18, color: colors.muted, flex: 1 },
-  photoTile: {
-    height: 106,
-    width: '31%',
-    borderRadius: radius.control,
-    borderWidth: 1,
-    borderStyle: 'dashed',
-    borderColor: colors.dashed,
-    backgroundColor: colors.panel,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-  },
   banner: {
     flexDirection: 'row',
     alignItems: 'center',

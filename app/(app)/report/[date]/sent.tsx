@@ -12,6 +12,8 @@ import { SevenDayStrip, type StripStatus } from '@/components/report/chrome';
 import { Button } from '@/components/ui';
 import { addDays, editDeadline, localHHmm, shortDateUpper } from '@/lib/dates';
 import { useOutbox, useOutboxItem } from '@/offline/outboxStore';
+import { unfinishedCount } from '@/offline/uploads';
+import { useUploads } from '@/offline/uploadsStore';
 import { useSession } from '@/store/session';
 import { colors, fonts, radius, type } from '@/theme';
 
@@ -25,6 +27,9 @@ export default function Sent() {
   const form = usePublishedForm(profile?.group_id);
   const item = useOutboxItem(form.data?.form.id, date ?? '');
   const retryNow = useOutbox((s) => s.retryNow);
+  const pendingPhotos = useUploads((s) =>
+    form.data ? unfinishedCount(s.uploads, form.data.form.id, date ?? '') : 0,
+  );
   const cal = useCalendar(profile?.user_id, addDays(date ?? '', -60), date ?? '');
   if (!date) return null;
 
@@ -94,7 +99,9 @@ export default function Sent() {
 
         <Text style={s.note}>
           {status === 'sent'
-            ? t('sent.noteSent')
+            ? pendingPhotos > 0
+              ? t('sent.notePhotos', { count: pendingPhotos })
+              : t('sent.noteSent')
             : status === 'failed'
               ? t('sent.noteFailed', { reason: item?.lastError ?? '' })
               : t('sent.noteQueued')}

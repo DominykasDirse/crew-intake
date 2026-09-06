@@ -5,12 +5,15 @@
 // for the next due item, and once after rehydration (which also un-sticks anything that
 // was mid-send when the app died).
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import NetInfo from '@react-native-community/netinfo';
 import { AppState } from 'react-native';
 import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 import { queryClient } from '@/api/queryClient';
 import { sendReport } from '@/api/submit';
+
+import { useUploads } from './uploadsStore';
 
 import {
   dueItems,
@@ -86,6 +89,7 @@ export const useOutbox = create<Store>()(
                   isLate: r.result.is_late,
                   now: Date.now(),
                 });
+                useUploads.getState().rememberSubmission(it.formId, it.reportDate, r.result.id);
                 void queryClient.invalidateQueries({ queryKey: ['submission'] });
                 void queryClient.invalidateQueries({ queryKey: ['calendar'] });
               } else {
@@ -129,6 +133,11 @@ function schedule(get: () => Store) {
 
 AppState.addEventListener('change', (s) => {
   if (s === 'active') void useOutbox.getState().drain();
+});
+
+// Signal comes and goes dozens of times a night in a van: the moment it is back, send.
+NetInfo.addEventListener((state) => {
+  if (state.isConnected && state.isInternetReachable !== false) void useOutbox.getState().drain();
 });
 
 function uuid(): string {

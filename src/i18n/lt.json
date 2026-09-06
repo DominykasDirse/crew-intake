@@ -110,7 +110,10 @@
       "linkLabel": "Pakvietimo nuoroda",
       "tokenOnce": "Rodoma vieną kartą. Naujas pakvietimas atšaukia šį. Galioja 7 dienas.",
       "revoked": "Pakvietimas atšauktas.",
-      "minted": "Pakvietimas išduotas."
+      "minted": "Pakvietimas išduotas.",
+      "tours": "Turai",
+      "unassign": "Pašalinti",
+      "assignTo": "Priskirti: {{tour}}"
     },
     "errors": {
       "email_exists": "Šis el. paštas jau turi paskyrą.",
@@ -150,7 +153,11 @@
     "streakCaption": "Dienos iš eilės, kai pateikėte ataskaitą arba pažymėjote poilsio dieną.",
     "queued": "eilėje · bus išsiųsta atsiradus ryšiui",
     "sendFailed": "nepavyko išsiųsti · atidarykite ir bandykite dar kartą",
-    "seeSentEdit": "Peržiūrėti, ką išsiuntėte · keisti galima iki {{time}}"
+    "seeSentEdit": "Peržiūrėti, ką išsiuntėte · keisti galima iki {{time}}",
+    "photosUploading_one": "{{count}} nuotrauka siunčiama",
+    "photosUploading_few": "{{count}} nuotraukos siunčiamos",
+    "photosUploading_many": "{{count}} nuotraukų siunčiama",
+    "photosUploading_other": "{{count}} nuotraukų siunčiama"
   },
   "runner": {
     "next": "Toliau",
@@ -183,7 +190,6 @@
     "range": "Nuo {{min}} iki {{max}}.",
     "photo": {
       "add": "Pridėti",
-      "nextBuild": "Nuotraukos atsiras kitame leidime. Kol kas galite praleisti.",
       "privacy": "Nuotraukos prieš siunčiant sumažinamos, o vietos duomenys iš jų pašalinami."
     },
     "dayOff": {
@@ -220,7 +226,12 @@
     "failedNote": "Nepavyko išsiųsti: {{reason}}",
     "retry": "Bandyti siųsti dar kartą",
     "editReport": "Keisti šią ataskaitą",
-    "closed": "Keitimai uždaryti {{time}}. Jei kas nors negerai, kreipkitės į administratorių."
+    "closed": "Keitimai uždaryti {{time}}. Jei kas nors negerai, kreipkitės į administratorių.",
+    "photoCount_one": "{{count}} nuotrauka",
+    "photoCount_few": "{{count}} nuotraukos",
+    "photoCount_many": "{{count}} nuotraukų",
+    "photoCount_other": "{{count}} nuotraukų",
+    "photoCount_zero": "Nuotraukos nėra"
   },
   "history": {
     "lastDays": "Paskutinės {{n}} dienos",
@@ -253,6 +264,29 @@
       "missed": "PRALEISTA",
       "queued": "SIUNČIAMA",
       "failed": "NEPAVYKO"
-    }
+    },
+    "notePhotos_one": "{{count}} nuotrauka dar siunčiama. Programėlę galite uždaryti – ji išsisiųs pati.",
+    "notePhotos_few": "{{count}} nuotraukos dar siunčiamos. Programėlę galite uždaryti – jos išsisiųs pačios.",
+    "notePhotos_many": "{{count}} nuotraukų dar siunčiama. Programėlę galite uždaryti – jos išsisiųs pačios.",
+    "notePhotos_other": "{{count}} nuotraukų dar siunčiama. Programėlę galite uždaryti – jos išsisiųs pačios."
+  },
+  "photo": {
+    "photo": "Nuotrauka",
+    "add": "Pridėti",
+    "addTitle": "Pridėti nuotrauką",
+    "takePhoto": "Fotografuoti",
+    "fromGallery": "Pasirinkti iš galerijos",
+    "queued": "EILĖJE",
+    "waitingReport": "PO ATASKAITOS",
+    "uploading": "SIUNČIAMA",
+    "sent": "IŠSIŲSTA",
+    "onDrive": "DRIVE",
+    "driveRetrying": "DRIVE KARTOJA",
+    "retry": "KARTOTI",
+    "noSignal": "Nėra ryšio. Nuotraukos išsisiųs pačios, kai vėl būsite prisijungę.",
+    "permissionTitle": "Prieiga prie kameros",
+    "permissionBody": "Telefono nustatymuose leiskite prieigą prie kameros arba nuotraukų.",
+    "removeTitle": "Pašalinti šią nuotrauką?",
+    "remove": "Pašalinti"
   }
 }
