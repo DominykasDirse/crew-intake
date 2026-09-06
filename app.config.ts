@@ -30,7 +30,9 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       {
         action: 'VIEW',
         autoVerify: true,
-        data: [{ scheme: 'https', host: 'dominykasdirse.github.io', pathPrefix: '/crew-intake/claim' }],
+        data: [
+          { scheme: 'https', host: 'dominykasdirse.github.io', pathPrefix: '/crew-intake/claim' },
+        ],
         category: ['BROWSABLE', 'DEFAULT'],
       },
     ],
@@ -92,7 +94,13 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
         ]
       : []),
   ],
-  updates: { url: `https://u.expo.dev/${EAS_PROJECT_ID}` },
+  // EAS Update: JS fixes reach installed phones on next launch (eas update --channel preview).
+  updates: {
+    url: `https://u.expo.dev/${EAS_PROJECT_ID}`,
+    enabled: true,
+    checkAutomatically: 'ON_LOAD',
+    fallbackToCacheTimeout: 0,
+  },
   runtimeVersion: { policy: 'appVersion' },
   extra: {
     eas: { projectId: EAS_PROJECT_ID },

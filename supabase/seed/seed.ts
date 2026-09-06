@@ -24,15 +24,28 @@ import {
 
 const SEED_GROUPS = ['crew'];
 
-const TOUR: TourRow = {
-  code: 'T1',
-  name: 'Tour 1',
-  starts_on: '2026-11-01',
-  ends_on: '2027-05-30',
-  timezone: 'Europe/Vilnius',
-  currency: 'EUR',
-  is_active: true,
-};
+// T1 is the real tour: its dates matter later and are never changed here. PILOT covers
+// the September 2026 pilot week(s) and is deleted by hand afterwards.
+const TOURS: TourRow[] = [
+  {
+    code: 'T1',
+    name: 'Tour 1',
+    starts_on: '2026-11-01',
+    ends_on: '2027-05-30',
+    timezone: 'Europe/Vilnius',
+    currency: 'EUR',
+    is_active: true,
+  },
+  {
+    code: 'PILOT',
+    name: 'Pilot',
+    starts_on: '2026-09-01',
+    ends_on: '2026-09-30',
+    timezone: 'Europe/Vilnius',
+    currency: 'EUR',
+    is_active: true,
+  },
+];
 
 // Calendar colours; readable in a dark corridor and in daylight.
 const GROUP_COLORS: Record<string, string> = {
@@ -66,11 +79,12 @@ async function readExisting(db: SupabaseClient): Promise<Existing> {
   fail(g, 'read groups');
   for (const row of g.data ?? []) ex.groups.set(row.key, row);
 
-  const t = await db.from('tours').select(
-    'id,code,name,starts_on,ends_on,timezone,currency,is_active',
-  ).eq('code', TOUR.code).maybeSingle();
-  fail(t, 'read tour');
-  ex.tour = t.data;
+  const t = await db
+    .from('tours')
+    .select('id,code,name,starts_on,ends_on,timezone,currency,is_active')
+    .in('code', TOURS.map((x) => x.code));
+  fail(t, 'read tours');
+  for (const row of t.data ?? []) ex.tours.set(row.code, row);
 
   for (const key of SEED_GROUPS) {
     const gid = ex.groups.get(key)?.id;
@@ -202,15 +216,16 @@ if (PLAN_ONLY) {
   db = createClient(url, key, { auth: { persistSession: false } });
   existing = await readExisting(db);
   console.log(
-    `project ${new URL(url).host}: ${existing.groups.size} groups, tour ${
-      existing.tour ? 'present' : 'absent'
-    }, ${existing.forms.size} seeded form(s)\n`,
+    `project ${
+      new URL(url).host
+    }: ${existing.groups.size} groups, ${existing.tours.size} of ${TOURS.length} tours, ${existing.forms.size} seeded form(s)
+`,
   );
 }
 
 const plan = buildPlan(seed, existing, {
   seedGroups: SEED_GROUPS,
-  tour: TOUR,
+  tours: TOURS,
   groupColors: GROUP_COLORS,
   allowNewVersion: ALLOW_NEW_VERSION,
 });

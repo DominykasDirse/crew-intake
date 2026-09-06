@@ -5,7 +5,16 @@ import { useTranslation } from 'react-i18next';
 import { Share, StyleSheet, Text, View } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-import { getPerson, inviteState, mintInvite, revokeInvite } from '@/api/admin';
+import {
+  assignToTour,
+  getPerson,
+  inviteState,
+  listAssignments,
+  listTours,
+  mintInvite,
+  removeAssignment,
+  revokeInvite,
+} from '@/api/admin';
 import { Body, Button, colors, ErrorText, Screen, Title } from '@/components/ui';
 import { inviteUrl } from '@/lib/invite';
 import { fonts } from '@/theme';
@@ -20,6 +29,12 @@ export default function Person() {
   const person = useQuery({
     queryKey: ['admin', 'person', id],
     queryFn: () => getPerson(id),
+    enabled: !!id,
+  });
+  const tours = useQuery({ queryKey: ['tours'], queryFn: listTours });
+  const assignments = useQuery({
+    queryKey: ['admin', 'assignments', id],
+    queryFn: () => listAssignments(id),
     enabled: !!id,
   });
   // A freshly minted link is shown once and held only in memory on this screen.
@@ -56,6 +71,25 @@ export default function Person() {
       setShowQr(false);
       setNote(t('admin.person.revoked'));
       await refresh();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  const assign = async (tourId: string) => {
+    setError(null);
+    try {
+      await assignToTour(id, tourId);
+      await qc.invalidateQueries({ queryKey: ['admin', 'assignments', id] });
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  };
+  const unassign = async (assignmentId: string) => {
+    setError(null);
+    try {
+      await removeAssignment(assignmentId);
+      await qc.invalidateQueries({ queryKey: ['admin', 'assignments', id] });
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     }
@@ -113,6 +147,31 @@ export default function Person() {
           )}
         </View>
       )}
+      <View style={s.box}>
+        <Text style={s.label}>{t('admin.person.tours')}</Text>
+        {(assignments.data ?? []).map((a) => (
+          <View key={a.id} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <Text style={[s.link, { flex: 1 }]}>
+              {a.tour?.code} · {a.starts_on} → {a.ends_on}
+            </Text>
+            <Button
+              title={t('admin.person.unassign')}
+              variant="secondary"
+              onPress={() => void unassign(a.id)}
+            />
+          </View>
+        ))}
+        {(tours.data ?? [])
+          .filter((tr) => !(assignments.data ?? []).some((a) => a.tour?.id === tr.id))
+          .map((tr) => (
+            <Button
+              key={tr.id}
+              title={t('admin.person.assignTo', { tour: `${tr.code} ${tr.name}` })}
+              variant="secondary"
+              onPress={() => void assign(tr.id)}
+            />
+          ))}
+      </View>
 
       {p?.status !== 'inactive' && (
         <Button title={t('admin.person.mint')} onPress={() => void mint()} />

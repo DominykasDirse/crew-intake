@@ -51,12 +51,16 @@ export type FormRow = {
 /** What is already in the database, keyed the way the seed file keys things. */
 export type Existing = {
   groups: Map<string, { id: string } & GroupRow>;
-  tour: ({ id: string } & TourRow) | null;
+  tours: Map<string, { id: string } & TourRow>;
   /** latest form version per group key (only for groups being seeded) */
   forms: Map<string, { id: string } & FormRow & { questions: (QuestionRow & { id: string })[] }>;
 };
 
-export const emptyExisting = (): Existing => ({ groups: new Map(), tour: null, forms: new Map() });
+export const emptyExisting = (): Existing => ({
+  groups: new Map(),
+  tours: new Map(),
+  forms: new Map(),
+});
 
 export type Action =
   | { type: 'group.same'; key: string }
@@ -112,7 +116,7 @@ export const isPlaceholder = (id: string) => id.startsWith('<new:');
 
 export type PlanOptions = {
   seedGroups: string[];
-  tour: TourRow;
+  tours: TourRow[];
   groupColors: Record<string, string>;
   allowNewVersion: boolean;
 };
@@ -168,17 +172,19 @@ export function buildPlan(seed: SeedFile, existing: Existing, opts: PlanOptions)
     );
   }
 
-  // ---- tour
-  if (!existing.tour) {
-    actions.push({ type: 'tour.insert', code: opts.tour.code, row: opts.tour });
-  } else {
-    const cur = existing.tour;
+  // ---- tours
+  for (const tour of opts.tours) {
+    const cur = existing.tours.get(tour.code);
+    if (!cur) {
+      actions.push({ type: 'tour.insert', code: tour.code, row: tour });
+      continue;
+    }
     const changes: string[] = [];
     const upd: Partial<TourRow> = {};
     for (const k of ['name', 'starts_on', 'ends_on', 'timezone', 'currency'] as const) {
-      if (String(cur[k]) !== String(opts.tour[k])) {
-        changes.push(`${k} ${cur[k]} → ${opts.tour[k]}`);
-        (upd as Record<string, unknown>)[k] = opts.tour[k];
+      if (String(cur[k]) !== String(tour[k])) {
+        changes.push(`${k} ${cur[k]} → ${tour[k]}`);
+        (upd as Record<string, unknown>)[k] = tour[k];
       }
     }
     // is_active is admin-owned once the row exists

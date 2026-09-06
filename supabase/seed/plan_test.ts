@@ -76,15 +76,17 @@ const seed: SeedFile = {
 
 const opts: PlanOptions = {
   seedGroups: ['crew'],
-  tour: {
-    code: 'T1',
-    name: 'Tour 1',
-    starts_on: '2026-11-01',
-    ends_on: '2027-05-30',
-    timezone: 'Europe/Vilnius',
-    currency: 'EUR',
-    is_active: true,
-  },
+  tours: [
+    {
+      code: 'T1',
+      name: 'Tour 1',
+      starts_on: '2026-11-01',
+      ends_on: '2027-05-30',
+      timezone: 'Europe/Vilnius',
+      currency: 'EUR',
+      is_active: true,
+    },
+  ],
   groupColors: { crew: '#3B82F6' },
   allowNewVersion: false,
 };
@@ -132,7 +134,7 @@ Deno.test('mixed: some groups exist (one changed), tour exists, crew form missin
     color: '#000000',
     is_active: false,
   });
-  ex.tour = { id: 't1', ...opts.tour };
+  ex.tours.set('T1', { id: 't1', ...opts.tours[0]! });
   const p = buildPlan(seed, ex, opts);
   assertEquals(types(p), [
     'group.insert',
@@ -166,7 +168,7 @@ Deno.test('fully seeded and unchanged: all "same", nothing to write', () => {
       is_active: true,
     });
   }
-  ex.tour = { id: 't1', ...opts.tour };
+  ex.tours.set('T1', { id: 't1', ...opts.tours[0]! });
   ex.forms.set('crew', {
     id: 'f1',
     version: 1,
@@ -200,7 +202,7 @@ Deno.test('label change → in place; added question → blocked without --allow
     color: '#000',
     is_active: true,
   });
-  ex.tour = { id: 't1', ...opts.tour };
+  ex.tours.set('T1', { id: 't1', ...opts.tours[0]! });
   const rows = toRows(seed.forms[0].questions).map((q, i) => ({ ...q, id: `q${i}` }));
   rows[1].label_en = 'Old label';
   ex.forms.set('crew', {
@@ -229,7 +231,7 @@ Deno.test('label change → in place; added question → blocked without --allow
 
 Deno.test('tour changes are planned as an update; is_active is admin-owned', () => {
   const ex: Existing = emptyExisting();
-  ex.tour = { id: 't1', ...opts.tour, ends_on: '2027-04-30', is_active: false };
+  ex.tours.set('T1', { id: 't1', ...opts.tours[0]!, ends_on: '2027-04-30', is_active: false });
   const p = buildPlan({ groups: [], forms: [] }, ex, opts);
   assertEquals(p.actions, [{
     type: 'tour.update',

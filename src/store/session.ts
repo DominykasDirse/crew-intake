@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import { supabase, type Tables } from '@/api/supabase';
 import { setLocale } from '@/i18n';
 import { isLocale } from '@/lib/locale';
+import { setSentryUser } from '@/lib/sentry';
 
 export type Profile = Tables<'profiles'>;
 
@@ -42,6 +43,7 @@ export const useSession = create<SessionState>((set, get) => ({
 
   refreshProfile: async () => {
     const session = get().session;
+    setSentryUser(session?.user.id ?? null);
     if (!session) {
       set({ profile: null, isAdmin: false });
       return;

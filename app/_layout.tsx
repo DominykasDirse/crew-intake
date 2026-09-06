@@ -19,6 +19,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { queryClient } from '@/api/queryClient';
+import { wrapRoot } from '@/lib/sentry';
 import { colors } from '@/components/ui';
 import '@/offline/outboxStore';
 import { useSession } from '@/store/session';
@@ -59,7 +60,7 @@ function Gate() {
   return <Slot />;
 }
 
-export default function RootLayout() {
+function RootLayout() {
   const [fontsLoaded] = useFonts({
     Archivo_400Regular,
     Archivo_500Medium,
@@ -78,3 +79,5 @@ export default function RootLayout() {
     </SafeAreaProvider>
   );
 }
+
+export default wrapRoot(RootLayout);
