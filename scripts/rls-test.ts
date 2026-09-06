@@ -442,7 +442,7 @@ try {
       late,
     );
 
-    const upd = await A.client.from('submissions').update({ status: 'excused' }).eq('id', late.id)
+    const upd = await A.client.from('submissions').update({ status: 'submitted' }).eq('id', late.id) // same value: proves the policy, keeps the record
       .select();
     check(
       'direct update on a 3-day-old report is allowed inside the 7-day window',
