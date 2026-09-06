@@ -379,6 +379,26 @@ attempts, nextAttemptAt, status}`. Photos are copied into app documents storage
 - **Not yet:** photos (phase 6), location opt-in box on the review screen (location phase),
   push (phase 8).
 
+### Phase 6 outcome (2026-09-06)
+
+- **Photos** are taken or picked, resized to 1600 px / JPEG 0.7 and re-encoded (which
+  drops all EXIF, GPS included), then copied into the app's document directory. A 12 MP
+  photo leaves the phone at roughly 150–300 KB.
+- **The queue** (`src/offline/uploads.ts`, pure, 9 failure-mode tests) works like the
+  outbox: queued on the phone, uploaded only once the report exists on the server, backoff
+  2 s → 10 min, rehydrate un-sticks a mid-upload kill, Storage refusals are permanent and
+  retried by hand. The report is never blocked by an unfinished upload.
+- **Edit before the photo uploaded:** the photo is keyed by (form, date, question, id),
+  not by report version, so it stays queued and attaches to the same submission whenever
+  it uploads. If the edit hides its question (fault → No), an un-uploaded photo is dropped;
+  one already in Storage is kept. `submit_report` never touches `attachments`.
+- **State per photo** on screen: queued / after report / sending / sent / on Drive /
+  Drive retry / failed (tap to retry); Drive state is read from the person's own
+  `attachments` rows and polled while pending. Migration 0009 lets photos attach after
+  the 06:00 cutoff (offline photos arrive late; backfilled reports are past it anyway).
+- **Also this phase:** NetInfo reconnect drains, EAS Update on launch, Sentry when a DSN is
+  set, PILOT tour (Sept 2026) in the seed, admin tour assignment.
+
 ## 7. Notifications (phase 8)
 
 `notify-daily` runs on cron every 15 minutes. In one SQL statement it finds every person who:
