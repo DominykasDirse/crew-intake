@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { supabase } from '@/api/supabase';
-import { Button, ErrorText, Field, Screen, Title } from '@/components/ui';
+import { Body, Button, ErrorText, Field, Screen, Title } from '@/components/ui';
 
 export default function SignIn() {
   const { t } = useTranslation();
@@ -43,6 +43,7 @@ export default function SignIn() {
         onChangeText={setPassword}
       />
       <ErrorText>{error}</ErrorText>
+      <Body muted>{t('signIn.forgot')}</Body>
       <Button
         title={t('signIn.button')}
         onPress={() => void submit()}

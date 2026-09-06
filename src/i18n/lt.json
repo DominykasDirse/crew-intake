@@ -51,7 +51,8 @@
     "email": "El. paštas",
     "password": "Slaptažodis",
     "button": "Prisijungti",
-    "wrong": "Neteisingas el. paštas arba slaptažodis."
+    "wrong": "Neteisingas el. paštas arba slaptažodis.",
+    "forgot": "Pamiršote slaptažodį? Paprašykite turo vadovo naujos pakvietimo nuorodos – ją atidarę nustatysite naują."
   },
   "errors": {
     "invalid_or_used": "Šis pakvietimas jau panaudotas arba nebegalioja. Paprašykite administratoriaus naujo.",

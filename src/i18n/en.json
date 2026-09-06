@@ -51,7 +51,8 @@
     "email": "Email",
     "password": "Password",
     "button": "Sign in",
-    "wrong": "Wrong email or password."
+    "wrong": "Wrong email or password.",
+    "forgot": "Forgotten your password? Ask your tour manager for a new invite link — opening it lets you set a new one."
   },
   "errors": {
     "invalid_or_used": "This invite has already been used or has expired. Ask your admin for a new one.",
