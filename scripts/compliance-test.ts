@@ -104,9 +104,9 @@ try {
     cal.filter((r) => r.status === 'missed'),
   );
   check(
-    'the 14 earlier days are "before_join" and not expected',
+    'the 14 earlier days are not expected and never red (not_assigned before the assignment, before_join if covered)',
     cal.filter((r) => r.report_date < today).every((r) =>
-      r.status === 'before_join' && !r.expected
+      (r.status === 'before_join' || r.status === 'not_assigned') && !r.expected
     ),
     cal.slice(0, 3),
   );
