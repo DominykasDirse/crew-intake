@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { inviteState, listPeople, PAGE } from '@/api/admin';
 import { Body, Button, colors, Screen, Title } from '@/components/ui';
+import { errorMessage } from '@/lib/errors';
 import { fonts } from '@/theme';
 
 export default function People() {
@@ -23,7 +24,12 @@ export default function People() {
       <Title>{t('admin.people')}</Title>
       <Button title={t('admin.newPerson')} onPress={() => router.push('/admin/people/new')} />
       {q.isLoading && <Body muted>{t('common.loading')}</Body>}
-      {q.error && <Body muted>{String(q.error)}</Body>}
+      {q.error && (
+        <>
+          <Body style={{ color: colors.red }}>{errorMessage(q.error)}</Body>
+          <Button title={t('common.retry')} variant="secondary" onPress={() => void q.refetch()} />
+        </>
+      )}
       {rows.map((p) => {
         const group = p.group ? (i18n.language === 'lt' ? p.group.name_lt : p.group.name_en) : '—';
         return (

@@ -16,6 +16,7 @@ import {
   revokeInvite,
 } from '@/api/admin';
 import { Body, Button, colors, ErrorText, Screen, Title } from '@/components/ui';
+import { errorMessage } from '@/lib/errors';
 import { inviteUrl } from '@/lib/invite';
 import { fonts } from '@/theme';
 
@@ -59,7 +60,7 @@ export default function Person() {
       setNote(t('admin.person.minted'));
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorMessage(e));
     }
   };
 
@@ -72,7 +73,7 @@ export default function Person() {
       setNote(t('admin.person.revoked'));
       await refresh();
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorMessage(e));
     }
   };
 
@@ -82,7 +83,7 @@ export default function Person() {
       await assignToTour(id, tourId);
       await qc.invalidateQueries({ queryKey: ['admin', 'assignments', id] });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorMessage(e));
     }
   };
   const unassign = async (assignmentId: string) => {
@@ -91,7 +92,7 @@ export default function Person() {
       await removeAssignment(assignmentId);
       await qc.invalidateQueries({ queryKey: ['admin', 'assignments', id] });
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      setError(errorMessage(e));
     }
   };
 

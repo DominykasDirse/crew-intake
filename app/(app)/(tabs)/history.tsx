@@ -11,6 +11,7 @@ import { supabase } from '@/api/supabase';
 import { ChevronRight } from '@/components/icons';
 import { Chip, type ChipKind } from '@/components/report/chrome';
 import { addDays, fileableDates, longDate, shortDateUpper } from '@/lib/dates';
+import { errorMessage } from '@/lib/errors';
 import { localReportDate } from '@/lib/reportDate';
 import { useOutbox } from '@/offline/outboxStore';
 import { useSession } from '@/store/session';
@@ -114,7 +115,7 @@ export default function History() {
             </>
           ) : (
             <Text style={s.figureSub}>
-              {summary.error ? String(summary.error) : t('common.loading')}
+              {summary.error ? errorMessage(summary.error) : t('common.loading')}
             </Text>
           )}
           <Text style={s.fine}>{t('history.ownOnly')}</Text>

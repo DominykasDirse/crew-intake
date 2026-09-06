@@ -16,8 +16,10 @@ export type PersonRow = {
 
 export const PAGE = 50;
 
+// Two relationships link profiles and groups (group_id, and groups.lead_user_id back to a
+// profile), so PostgREST needs the FK named on both embeds or it refuses the whole query.
 const PERSON_SELECT =
-  'user_id,first_name,last_name,status,timezone,notify_at,group:groups(key,name_en,name_lt),invites!invites_user_id_fkey(used_at,expires_at)';
+  'user_id,first_name,last_name,status,timezone,notify_at,group:groups!profiles_group_id_fkey(key,name_en,name_lt),invites!invites_user_id_fkey(used_at,expires_at)';
 
 /** Same rules as invite_state() in SQL, computed from rows the admin can already read. */
 export function inviteState(invites: PersonRow['invites'], now = Date.now()): InviteState {

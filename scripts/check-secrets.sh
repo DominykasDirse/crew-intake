@@ -6,6 +6,7 @@
 #     anywhere the app bundle is built from.
 #  2. Secret-shaped VALUES must not appear anywhere in the repo at all, functions included
 #     (functions read them from Deno.env, never from source).
+#  3. No EXPO_PUBLIC_* variable may hold a secret-shaped value (scripts/check-public-env.js).
 set -eu
 cd "$(dirname "$0")/.."
 
@@ -24,5 +25,7 @@ if hits=$(grep -rnE "$VALUES" . --exclude-dir=node_modules --exclude-dir=.git --
       --exclude-dir=.temp --exclude-dir=".backup-*" --exclude='.env' --exclude='.env.*' 2>/dev/null); then
   echo "FAIL: secret-shaped values found in the repo:"; echo "$hits"; status=1
 fi
+# 3. Nothing secret may carry the EXPO_PUBLIC_ prefix (env files + process env)
+if ! node scripts/check-public-env.js; then status=1; fi
 [ "$status" -eq 0 ] && echo "secrets check: clean"
 exit $status

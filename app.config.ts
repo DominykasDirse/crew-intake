@@ -1,5 +1,12 @@
 import type { ConfigContext, ExpoConfig } from 'expo/config';
 
+// eslint-disable-next-line @typescript-eslint/no-require-imports -- plain CJS so CI can run it with node alone
+const { assertNoPublicSecrets } = require('./scripts/check-public-env.js') as {
+  assertNoPublicSecrets: () => void;
+};
+// Every expo start / export / eas build evaluates this file: a secret under EXPO_PUBLIC_ stops it here.
+assertNoPublicSecrets();
+
 const EAS_PROJECT_ID = '52529350-6421-4916-a602-d4440e49bcec';
 
 // Permanent once published. Do not change.

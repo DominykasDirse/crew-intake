@@ -6,7 +6,8 @@
     "loading": "Loading…",
     "language": "Language",
     "english": "English",
-    "lithuanian": "Lietuvių"
+    "lithuanian": "Lietuvių",
+    "retry": "Try again"
   },
   "welcome": {
     "title": "Crew Intake",
