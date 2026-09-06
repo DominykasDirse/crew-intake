@@ -31,7 +31,7 @@ const ADVANCE_MS = 220;
 export default function Runner() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { date } = useLocalSearchParams<{ date: string }>();
+  const { date, screen: screenParam } = useLocalSearchParams<{ date: string; screen?: string }>();
   const profile = useSession((s) => s.profile);
   const form = usePublishedForm(profile?.group_id);
   const hydrated = useLocal((s) => s.hydrated);
@@ -48,6 +48,7 @@ export default function Runner() {
   }
   return (
     <RunnerBody
+      jumpTo={screenParam !== undefined ? Number(screenParam) : undefined}
       date={date}
       formId={form.data.form.id}
       questions={form.data.questions}
@@ -59,6 +60,7 @@ export default function Runner() {
 }
 
 function RunnerBody({
+  jumpTo,
   date,
   formId,
   questions,
@@ -66,6 +68,7 @@ function RunnerBody({
   onExit,
   onDone,
 }: {
+  jumpTo?: number;
   date: string;
   formId: string;
   questions: Question[];
@@ -81,7 +84,9 @@ function RunnerBody({
 
   useEffect(() => {
     startDraft(formId, date);
-  }, [startDraft, formId, date]);
+    if (jumpTo !== undefined && Number.isFinite(jumpTo))
+      setScreenIndex(formId, date, Math.max(0, jumpTo));
+  }, [startDraft, setScreenIndex, formId, date, jumpTo]);
 
   const answers: Answers = useMemo(() => draft?.answers ?? {}, [draft?.answers]);
   const screens = useMemo(() => buildScreens(questions, answers), [questions, answers]);
@@ -271,7 +276,9 @@ function RunnerBody({
         />
         <View style={s.photoTile}>
           <CameraIcon size={22} color={colors.muted} />
-          <Text style={{ fontSize: 11, color: colors.muted }}>{t('runner.photo.add')}</Text>
+          <Text style={{ fontFamily: fonts.sans400, fontSize: 11, color: colors.muted }}>
+            {t('runner.photo.add')}
+          </Text>
         </View>
         <Text style={s.note}>{t('runner.photo.nextBuild')}</Text>
         <Text style={s.note}>{t('runner.photo.privacy')}</Text>
@@ -307,7 +314,7 @@ function RunnerBody({
               borderStyle: 'dashed',
             }}
           />
-          <Text style={{ flex: 1, fontSize: 13, color: colors.text2 }}>
+          <Text style={{ fontFamily: fonts.sans400, flex: 1, fontSize: 13, color: colors.text2 }}>
             {t('runner.dayOff.banner')}
           </Text>
         </View>
@@ -409,14 +416,14 @@ const s = StyleSheet.create({
   center: { flex: 1, justifyContent: 'center', gap: 30, minHeight: 420 },
   top: { paddingTop: 40, gap: 26 },
   kicker: { ...type.kicker, color: colors.accent },
-  question: { ...type.question, color: colors.text, fontFamily: fonts.sans },
-  questionSm: { ...type.questionSm, color: colors.text, fontFamily: fonts.sans },
-  caption: { minHeight: 22, fontSize: 15, color: colors.text2 },
-  error: { minHeight: 18, fontSize: 14, color: colors.red },
+  question: { fontFamily: fonts.sans400, ...type.question, color: colors.text },
+  questionSm: { fontFamily: fonts.sans400, ...type.questionSm, color: colors.text },
+  caption: { fontFamily: fonts.sans400, minHeight: 22, fontSize: 15, color: colors.text2 },
+  error: { fontFamily: fonts.sans400, minHeight: 18, fontSize: 14, color: colors.red },
   muted: { color: colors.muted, padding: 20 },
   followBox: { gap: 16, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 22 },
-  followLabel: { fontSize: 14, fontWeight: '600', color: colors.text2 },
-  note: { fontSize: 12, lineHeight: 18, color: colors.muted, flex: 1 },
+  followLabel: { fontFamily: fonts.sans600, fontSize: 14, color: colors.text2 },
+  note: { fontFamily: fonts.sans400, fontSize: 12, lineHeight: 18, color: colors.muted, flex: 1 },
   photoTile: {
     height: 106,
     width: '31%',

@@ -205,7 +205,7 @@ const s = StyleSheet.create({
     overflow: 'hidden',
   },
   fill: { height: '100%', backgroundColor: colors.accent },
-  count: { fontFamily: fonts.mono, fontSize: 12, color: colors.muted },
+  count: { fontFamily: fonts.mono400, fontSize: 12, color: colors.muted },
   nextBar: { paddingHorizontal: 20, paddingBottom: 12, gap: 12 },
   chip: {
     paddingVertical: 6,
@@ -213,9 +213,9 @@ const s = StyleSheet.create({
     borderRadius: radius.chip,
     alignSelf: 'flex-start',
   },
-  chipText: { fontFamily: fonts.mono, fontSize: 11, fontWeight: '600', letterSpacing: 0.9 },
+  chipText: { fontFamily: fonts.mono600, fontSize: 11, letterSpacing: 0.9 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  legendText: { fontSize: 11, color: colors.muted },
+  legendText: { fontFamily: fonts.sans400, fontSize: 11, color: colors.muted },
   tabBar: {
     flexDirection: 'row',
     borderTopWidth: 1,
@@ -225,8 +225,8 @@ const s = StyleSheet.create({
   },
   tab: { flex: 1, alignItems: 'center', gap: 5, minHeight: 44 },
   tabLabel: {
+    fontFamily: fonts.sans600,
     fontSize: 10,
-    fontWeight: '600',
     letterSpacing: 0.8,
     textTransform: 'uppercase',
     color: colors.muted,

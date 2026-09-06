@@ -8,6 +8,7 @@ import { createPerson } from '@/api/admin';
 import { supabase } from '@/api/supabase';
 import { Body, Button, colors, ErrorText, Field, Screen, Title } from '@/components/ui';
 import { deviceTimezone } from '@/i18n';
+import { fonts } from '@/theme';
 
 function Pick<T extends string>({
   label,
@@ -174,7 +175,7 @@ export default function NewPerson() {
 }
 
 const s = StyleSheet.create({
-  label: { color: colors.muted, fontSize: 15 },
+  label: { fontFamily: fonts.sans400, color: colors.muted, fontSize: 15 },
   wrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   chip: {
     minHeight: 52,
@@ -186,5 +187,5 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   chipActive: { borderColor: colors.accent, backgroundColor: '#1e3a8a' },
-  chipText: { color: colors.text, fontSize: 17, fontWeight: '600' },
+  chipText: { fontFamily: fonts.sans600, color: colors.text, fontSize: 17 },
 });

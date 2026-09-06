@@ -147,7 +147,10 @@
     "legendFiled": "Filed",
     "legendDayOff": "Day off",
     "streak": "Your streak",
-    "streakCaption": "Days in a row you have filed or marked a day off."
+    "streakCaption": "Days in a row you have filed or marked a day off.",
+    "queued": "queued · sends when back online",
+    "sendFailed": "could not send · open to retry",
+    "seeSentEdit": "See what you sent · change until {{time}}"
   },
   "runner": {
     "next": "Next",
@@ -205,9 +208,51 @@
   },
   "review": {
     "title": "Check and send",
-    "placeholder": "Review and send for {{date}} arrive in the next step. Your answers are saved on this phone."
+    "sentTitle": "What you sent",
+    "edit": "Edit",
+    "send": "Send report",
+    "caption": "Filed under your name and visible to the production office.",
+    "blank": "—",
+    "noPhoto": "No photo",
+    "nothing": "Nothing to show for this day.",
+    "dayOffNote": "This will be filed as a day off. It counts as filed, never as missed.",
+    "lateNote": "This report is late. It still counts, marked as filed late.",
+    "failedNote": "Could not send: {{reason}}",
+    "retry": "Try sending again",
+    "editReport": "Change this report",
+    "closed": "Changes closed at {{time}}. Ask an admin if something is wrong."
   },
   "history": {
-    "placeholder": "Your own filed / day off / missed days arrive in the next step."
+    "lastDays": "Last {{n}} days",
+    "ofFiled": "of {{n}} filed",
+    "breakdown": "{{onTime}} on time · {{late}} late · {{dayOff}} day off · {{missed}} missed",
+    "lastFiled": "Last filed {{date}}.",
+    "neverFiled": "Nothing filed yet.",
+    "ownOnly": "Your own days only. Nobody is compared to anyone.",
+    "notAssigned": "not on tour",
+    "fileNow": "File now"
+  },
+  "sent": {
+    "title": "Sent",
+    "queuedTitle": "Saved — sending",
+    "failedTitle": "Not sent",
+    "onTime": "on time",
+    "late": "late",
+    "dayOff": "day off",
+    "pending": "sending",
+    "streak": "Streak",
+    "noteSent": "Your report is with the production office.",
+    "noteQueued": "No connection right now. Your report is saved on this phone and will send itself — you can close the app.",
+    "noteFailed": "The server refused this report: {{reason}}. Your answers are kept.",
+    "backToToday": "Back to today",
+    "changeUntil": "Need to change something? You have until",
+    "chip": {
+      "filed": "FILED",
+      "late": "LATE",
+      "dayOff": "DAY OFF",
+      "missed": "MISSED",
+      "queued": "SYNCING",
+      "failed": "FAILED"
+    }
   }
 }

@@ -15,8 +15,9 @@ import {
 import { Check, ChevronRight, Clock, FileIcon } from '@/components/icons';
 import { Chip, SevenDayStrip, type StripStatus, StripLegend } from '@/components/report/chrome';
 import { workingDayScreenCount } from '@/forms/screens';
-import { addDays, localHHmm, longDate, timeLeft } from '@/lib/dates';
+import { addDays, editDeadline, isEditable, localHHmm, longDate, timeLeft } from '@/lib/dates';
 import { localReportDate } from '@/lib/reportDate';
+import { useOutboxItem } from '@/offline/outboxStore';
 import { draftKey, useLocal } from '@/store/local';
 import { useSession } from '@/store/session';
 import { colors, fonts, radius, type } from '@/theme';
@@ -40,6 +41,7 @@ export default function Today() {
   const draft = useLocal((s) =>
     form.data ? s.drafts[draftKey(form.data.form.id, today)] : undefined,
   );
+  const outboxItem = useOutboxItem(form.data?.form.id, today);
 
   const groupName = useGroupName(profile?.group_id);
   const kicker = [ctx.data?.tour?.code, ctx.data?.tour?.name, groupName]
@@ -57,7 +59,8 @@ export default function Today() {
   const rows = cal.data ?? [];
   const status = (d: string): StripStatus =>
     (rows.find((r) => r.report_date === d)?.status as StripStatus | undefined) ?? 'unknown';
-  const filed = !!sub.data;
+  const filed = !!sub.data || !!outboxItem;
+  const editable = isEditable(today, tz, now);
   const stripDays = Array.from({ length: 7 }, (_, i) => addDays(today, filed ? i - 6 : i - 7));
   const strip = stripDays.map(status);
   const filedCount = strip.filter((x) => x === 'filed' || x === 'late' || x === 'excused').length;
@@ -119,7 +122,16 @@ export default function Today() {
           ) : (
             <View style={s.card}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                <Check size={20} color={colors.green} />
+                <Check
+                  size={20}
+                  color={
+                    outboxItem && outboxItem.status === 'failed'
+                      ? colors.red
+                      : outboxItem && outboxItem.status !== 'sent'
+                        ? colors.muted
+                        : colors.green
+                  }
+                />
                 <Text style={s.filedTitle}>
                   {sub.data?.status === 'excused'
                     ? t('home.dayOffRecorded')
@@ -127,12 +139,17 @@ export default function Today() {
                 </Text>
               </View>
               <Text style={s.mono}>
-                {localHHmm(new Date(sub.data!.submitted_at), tz)} ·{' '}
-                {sub.data?.status === 'excused'
-                  ? t('home.dayOff')
-                  : sub.data?.is_late
-                    ? t('home.late')
-                    : t('home.onTime')}
+                {outboxItem && outboxItem.status !== 'sent'
+                  ? outboxItem.status === 'failed'
+                    ? t('home.sendFailed')
+                    : t('home.queued')
+                  : `${localHHmm(new Date(sub.data?.submitted_at ?? outboxItem?.sentAt ?? now.getTime()), tz)} · ${
+                      (sub.data?.status ?? outboxItem?.serverStatus) === 'excused'
+                        ? t('home.dayOff')
+                        : (sub.data?.is_late ?? outboxItem?.isLate)
+                          ? t('home.late')
+                          : t('home.onTime')
+                    }`}
               </Text>
               <View style={s.divider} />
               <Pressable
@@ -146,7 +163,11 @@ export default function Today() {
                   marginVertical: -10,
                 }}
               >
-                <Text style={{ fontSize: 14, color: colors.text2 }}>{t('home.seeSent')}</Text>
+                <Text style={{ fontFamily: fonts.sans400, fontSize: 14, color: colors.text2 }}>
+                  {editable
+                    ? t('home.seeSentEdit', { time: localHHmm(editDeadline(today, tz), tz) })
+                    : t('home.seeSent')}
+                </Text>
                 <ChevronRight size={18} />
               </Pressable>
             </View>
@@ -155,10 +176,12 @@ export default function Today() {
           <View style={[s.card, s.row, { opacity: 0.55 }]}>
             <FileIcon size={22} />
             <View style={{ flex: 1, gap: 2 }}>
-              <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text }}>
+              <Text style={{ fontFamily: fonts.sans600, fontSize: 16, color: colors.text }}>
                 {t('home.invoice')}
               </Text>
-              <Text style={{ fontSize: 12, color: colors.muted }}>{t('home.invoiceSoon')}</Text>
+              <Text style={{ fontFamily: fonts.sans400, fontSize: 12, color: colors.muted }}>
+                {t('home.invoiceSoon')}
+              </Text>
             </View>
             <ChevronRight size={18} />
           </View>
@@ -194,7 +217,14 @@ export default function Today() {
               <Text style={s.streakNum}>{streak}</Text>
             </View>
             <SevenDayStrip days={strip} panel />
-            <Text style={{ fontSize: 12, color: colors.muted, lineHeight: 18 }}>
+            <Text
+              style={{
+                fontFamily: fonts.sans400,
+                fontSize: 12,
+                color: colors.muted,
+                lineHeight: 18,
+              }}
+            >
               {t('home.streakCaption')}
             </Text>
           </View>
@@ -227,9 +257,9 @@ function useGroupName(groupId: string | null | undefined) {
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   body: { flex: 1, paddingHorizontal: 20, paddingTop: 24, gap: 24 },
-  kicker: { fontFamily: fonts.mono, fontSize: 11, letterSpacing: 1.3, color: colors.muted },
-  date: { ...type.display, color: colors.text, fontFamily: fonts.sans },
-  showLine: { fontSize: 14, color: colors.text2 },
+  kicker: { fontFamily: fonts.mono400, fontSize: 11, letterSpacing: 1.3, color: colors.muted },
+  date: { fontFamily: fonts.sans400, ...type.display, color: colors.text },
+  showLine: { fontFamily: fonts.sans400, fontSize: 14, color: colors.text2 },
   dueCard: {
     backgroundColor: colors.accent,
     borderRadius: radius.control,
@@ -237,15 +267,15 @@ const s = StyleSheet.create({
     paddingHorizontal: 22,
     gap: 10,
   },
-  dueTitle: {
-    fontSize: 25,
-    fontWeight: '700',
-    letterSpacing: -0.4,
+  dueTitle: { fontFamily: fonts.sans700, fontSize: 25, letterSpacing: -0.4, color: colors.bg },
+  dueSub: {
+    fontFamily: fonts.sans400,
+    fontSize: 13,
+    lineHeight: 19,
     color: colors.bg,
-    fontFamily: fonts.sans,
+    opacity: 0.78,
   },
-  dueSub: { fontSize: 13, lineHeight: 19, color: colors.bg, opacity: 0.78 },
-  dueLeft: { fontFamily: fonts.mono, fontSize: 12, fontWeight: '600', color: colors.bg },
+  dueLeft: { fontFamily: fonts.mono600, fontSize: 12, color: colors.bg },
   card: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -255,21 +285,9 @@ const s = StyleSheet.create({
     gap: 12,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 18 },
-  filedTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    letterSpacing: -0.3,
-    color: colors.text,
-    fontFamily: fonts.sans,
-  },
-  mono: { fontFamily: fonts.mono, fontSize: 12, color: colors.muted },
+  filedTitle: { fontFamily: fonts.sans700, fontSize: 20, letterSpacing: -0.3, color: colors.text },
+  mono: { fontFamily: fonts.mono400, fontSize: 12, color: colors.muted },
   divider: { height: 1, backgroundColor: colors.border },
   sectionKicker: { ...type.kicker, color: colors.muted },
-  streakNum: {
-    fontFamily: fonts.mono,
-    fontSize: 28,
-    fontWeight: '600',
-    color: colors.accent,
-    lineHeight: 30,
-  },
+  streakNum: { fontFamily: fonts.mono600, fontSize: 28, color: colors.accent, lineHeight: 30 },
 });

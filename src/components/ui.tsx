@@ -83,8 +83,8 @@ export function Button({
         <Text
           style={[
             s.buttonText,
-            variant === 'secondary' && { color: colors.text, fontWeight: '600' },
-            variant === 'ghost' && { color: colors.muted, fontWeight: '500', fontSize: 14 },
+            variant === 'secondary' && { fontFamily: fonts.sans600, color: colors.text },
+            variant === 'ghost' && { fontFamily: fonts.sans500, color: colors.muted, fontSize: 14 },
             off && variant === 'primary' && { color: colors.dim },
           ]}
         >
@@ -142,12 +142,12 @@ export function Choice<T extends string>({
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 20, gap: 14, paddingBottom: 40 },
-  title: { ...type.display, color: colors.text, fontFamily: fonts.sans, marginBottom: 4 },
-  body: { color: colors.text, fontSize: 15, lineHeight: 22, fontFamily: fonts.sans },
+  title: { fontFamily: fonts.sans400, ...type.display, color: colors.text, marginBottom: 4 },
+  body: { fontFamily: fonts.sans400, color: colors.text, fontSize: 15, lineHeight: 22 },
   muted: { color: colors.muted },
-  kicker: { ...type.kicker, color: colors.muted, fontFamily: fonts.sans },
-  mono: { fontFamily: fonts.mono, fontSize: 12, color: colors.muted },
-  error: { color: colors.red, fontSize: 14, marginTop: 4 },
+  kicker: { fontFamily: fonts.sans400, ...type.kicker, color: colors.muted },
+  mono: { fontFamily: fonts.mono400, fontSize: 12, color: colors.muted },
+  error: { fontFamily: fonts.sans400, color: colors.red, fontSize: 14, marginTop: 4 },
   button: {
     height: 56,
     borderRadius: radius.control,
@@ -161,10 +161,11 @@ const s = StyleSheet.create({
   buttonGhost: { backgroundColor: 'transparent', height: 44 },
   buttonDisabled: { backgroundColor: colors.disabledBg },
   pressed: { opacity: 0.85 },
-  buttonText: { color: colors.bg, fontSize: 16, fontWeight: '700', fontFamily: fonts.sans },
+  buttonText: { fontFamily: fonts.sans700, color: colors.bg, fontSize: 16 },
   field: { gap: 6 },
-  label: { color: colors.muted, fontSize: 14 },
+  label: { fontFamily: fonts.sans400, color: colors.muted, fontSize: 14 },
   input: {
+    fontFamily: fonts.sans400,
     minHeight: 56,
     borderRadius: radius.control,
     borderWidth: 1,
@@ -173,7 +174,6 @@ const s = StyleSheet.create({
     color: colors.text,
     fontSize: 17,
     paddingHorizontal: 14,
-    fontFamily: fonts.sans,
   },
   choiceRow: { flexDirection: 'row', gap: 10 },
   choice: {
@@ -187,5 +187,5 @@ const s = StyleSheet.create({
     justifyContent: 'center',
   },
   choiceActive: { borderColor: colors.accent, backgroundColor: colors.accent },
-  choiceText: { color: colors.text2, fontSize: 17, fontWeight: '600' },
+  choiceText: { fontFamily: fonts.sans600, color: colors.text2, fontSize: 17 },
 });

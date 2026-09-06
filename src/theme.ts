@@ -1,8 +1,6 @@
 // Design tokens from design/Components.dc.html. Hi-vis is the only accent; green, amber
 // and red mean state, never decoration. #1B1D16 is a card or control; #16180F a recessed
 // panel behind one.
-import { Platform } from 'react-native';
-
 export const colors = {
   bg: '#131410',
   card: '#1B1D16',
@@ -31,12 +29,17 @@ export const colors = {
   danger: '#E3765F',
 } as const;
 
-// Archivo + JetBrains Mono in the canvas. The app ships the system faces until the
-// font packages are approved; swapping is these two lines.
+// Archivo + JetBrains Mono, loaded in app/_layout.tsx. The canvas metrics were tuned to
+// Archivo, so these are not cosmetic. Android ignores fontWeight on custom faces: every
+// text style names the weight-specific family instead.
 export const fonts = {
-  sans: undefined as string | undefined,
-  mono: Platform.select({ android: 'monospace', ios: 'Menlo', default: 'monospace' }) as string,
-};
+  sans400: 'Archivo_400Regular',
+  sans500: 'Archivo_500Medium',
+  sans600: 'Archivo_600SemiBold',
+  sans700: 'Archivo_700Bold',
+  mono400: 'JetBrainsMono_400Regular',
+  mono600: 'JetBrainsMono_600SemiBold',
+} as const;
 
 export const radius = { control: 3, chip: 2, card: 4 } as const;
 

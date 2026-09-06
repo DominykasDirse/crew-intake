@@ -41,6 +41,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     'expo-secure-store',
     'expo-localization',
     [
+      'expo-font',
+      {
+        fonts: [
+          'node_modules/@expo-google-fonts/archivo/400Regular/Archivo_400Regular.ttf',
+          'node_modules/@expo-google-fonts/archivo/500Medium/Archivo_500Medium.ttf',
+          'node_modules/@expo-google-fonts/archivo/600SemiBold/Archivo_600SemiBold.ttf',
+          'node_modules/@expo-google-fonts/archivo/700Bold/Archivo_700Bold.ttf',
+          'node_modules/@expo-google-fonts/jetbrains-mono/400Regular/JetBrainsMono_400Regular.ttf',
+          'node_modules/@expo-google-fonts/jetbrains-mono/600SemiBold/JetBrainsMono_600SemiBold.ttf',
+        ],
+      },
+    ],
+    [
       'expo-splash-screen',
       {
         image: './assets/splash-icon.png',

@@ -8,6 +8,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { getPerson, inviteState, mintInvite, revokeInvite } from '@/api/admin';
 import { Body, Button, colors, ErrorText, Screen, Title } from '@/components/ui';
 import { inviteUrl } from '@/lib/invite';
+import { fonts } from '@/theme';
 
 export default function Person() {
   const { t, i18n } = useTranslation();
@@ -133,7 +134,7 @@ const s = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  label: { color: colors.muted, fontSize: 15 },
-  link: { color: colors.text, fontSize: 15, fontFamily: 'monospace' },
+  label: { fontFamily: fonts.sans400, color: colors.muted, fontSize: 15 },
+  link: { fontFamily: fonts.sans400, color: colors.text, fontSize: 15 },
   qr: { alignSelf: 'center', padding: 12, backgroundColor: '#ffffff', borderRadius: 12 },
 });

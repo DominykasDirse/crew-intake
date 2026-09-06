@@ -6,6 +6,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Body, Button, colors, Screen } from '@/components/ui';
 import { parseInviteToken } from '@/lib/invite';
+import { fonts } from '@/theme';
 
 export default function Scan() {
   const { t } = useTranslation();
@@ -54,6 +55,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg },
   overlay: { position: 'absolute', left: 20, right: 20, bottom: 40, gap: 14 },
   hint: {
+    fontFamily: fonts.sans400,
     color: colors.text,
     fontSize: 18,
     textAlign: 'center',

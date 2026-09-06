@@ -23,6 +23,8 @@
     "packageJson": {
       "dependencies": [
         "npm:@date-fns/tz@^1.5.0",
+        "npm:@expo-google-fonts/archivo@~0.4.2",
+        "npm:@expo-google-fonts/jetbrains-mono@~0.4.1",
         "npm:@hookform/resolvers@^5.9.1",
         "npm:@react-native-async-storage/async-storage@2.2.0",
         "npm:@sentry/react-native@7.11",
@@ -38,6 +40,7 @@
         "npm:expo-constants@~57.0.17",
         "npm:expo-device@~57.0.1",
         "npm:expo-file-system@~57.0.6",
+        "npm:expo-font@~57.0.3",
         "npm:expo-image-manipulator@~57.0.15",
         "npm:expo-image-picker@~57.0.15",
         "npm:expo-linking@~57.0.9",

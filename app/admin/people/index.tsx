@@ -5,6 +5,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { inviteState, listPeople, PAGE } from '@/api/admin';
 import { Body, Button, colors, Screen, Title } from '@/components/ui';
+import { fonts } from '@/theme';
 
 export default function People() {
   const { t, i18n } = useTranslation();
@@ -66,6 +67,6 @@ const s = StyleSheet.create({
     gap: 4,
   },
   pressed: { opacity: 0.8 },
-  name: { color: colors.text, fontSize: 18, fontWeight: '600' },
-  meta: { color: colors.muted, fontSize: 15 },
+  name: { fontFamily: fonts.sans600, color: colors.text, fontSize: 18 },
+  meta: { fontFamily: fonts.sans400, color: colors.muted, fontSize: 15 },
 });

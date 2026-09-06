@@ -918,6 +918,7 @@ export type Database = {
       submit_report: {
         Args: {
           p_answers: Json;
+          p_client_ref?: string;
           p_form_id: string;
           p_location?: Json;
           p_report_date: string;

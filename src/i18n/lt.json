@@ -147,7 +147,10 @@
     "legendFiled": "Pateikta",
     "legendDayOff": "Poilsio diena",
     "streak": "Jūsų serija",
-    "streakCaption": "Dienos iš eilės, kai pateikėte ataskaitą arba pažymėjote poilsio dieną."
+    "streakCaption": "Dienos iš eilės, kai pateikėte ataskaitą arba pažymėjote poilsio dieną.",
+    "queued": "eilėje · bus išsiųsta atsiradus ryšiui",
+    "sendFailed": "nepavyko išsiųsti · atidarykite ir bandykite dar kartą",
+    "seeSentEdit": "Peržiūrėti, ką išsiuntėte · keisti galima iki {{time}}"
   },
   "runner": {
     "next": "Toliau",
@@ -205,9 +208,51 @@
   },
   "review": {
     "title": "Patikrinti ir išsiųsti",
-    "placeholder": "{{date}} peržiūra ir siuntimas atsiras kitame žingsnyje. Atsakymai išsaugoti šiame telefone."
+    "sentTitle": "Ką išsiuntėte",
+    "edit": "Keisti",
+    "send": "Išsiųsti ataskaitą",
+    "caption": "Pateikiama jūsų vardu ir matoma gamybos biurui.",
+    "blank": "—",
+    "noPhoto": "Nuotraukos nėra",
+    "nothing": "Šiai dienai nieko nėra.",
+    "dayOffNote": "Bus pateikta kaip poilsio diena. Tai laikoma pateikta, niekada – praleista.",
+    "lateNote": "Ši ataskaita pavėluota. Ji vis tiek įskaitoma, pažymėta kaip pateikta pavėluotai.",
+    "failedNote": "Nepavyko išsiųsti: {{reason}}",
+    "retry": "Bandyti siųsti dar kartą",
+    "editReport": "Keisti šią ataskaitą",
+    "closed": "Keitimai uždaryti {{time}}. Jei kas nors negerai, kreipkitės į administratorių."
   },
   "history": {
-    "placeholder": "Jūsų pateiktos / poilsio / praleistos dienos atsiras kitame žingsnyje."
+    "lastDays": "Paskutinės {{n}} dienos",
+    "ofFiled": "iš {{n}} pateikta",
+    "breakdown": "{{onTime}} laiku · {{late}} pavėluotai · {{dayOff}} poilsio · {{missed}} praleista",
+    "lastFiled": "Paskutinį kartą pateikta {{date}}.",
+    "neverFiled": "Dar nieko nepateikta.",
+    "ownOnly": "Tik jūsų dienos. Niekas su niekuo nelyginamas.",
+    "notAssigned": "ne ture",
+    "fileNow": "Pateikti dabar"
+  },
+  "sent": {
+    "title": "Išsiųsta",
+    "queuedTitle": "Išsaugota – siunčiama",
+    "failedTitle": "Neišsiųsta",
+    "onTime": "laiku",
+    "late": "pavėluotai",
+    "dayOff": "poilsio diena",
+    "pending": "siunčiama",
+    "streak": "Serija",
+    "noteSent": "Jūsų ataskaita pasiekė gamybos biurą.",
+    "noteQueued": "Šiuo metu ryšio nėra. Ataskaita išsaugota telefone ir išsisiųs pati – programėlę galite uždaryti.",
+    "noteFailed": "Serveris atmetė šią ataskaitą: {{reason}}. Atsakymai išsaugoti.",
+    "backToToday": "Grįžti į šiandieną",
+    "changeUntil": "Reikia ką nors pakeisti? Turite laiko iki",
+    "chip": {
+      "filed": "PATEIKTA",
+      "late": "PAVĖLUOTA",
+      "dayOff": "POILSIS",
+      "missed": "PRALEISTA",
+      "queued": "SIUNČIAMA",
+      "failed": "NEPAVYKO"
+    }
   }
 }

@@ -357,6 +357,28 @@ attempts, nextAttemptAt, status}`. Photos are copied into app documents storage
 
 ---
 
+### Phase 5 outcome (2026-09-06)
+
+- **Runner** built from the published form's `questions` rows; `visible_if` drives every
+  reveal; one screen per decision; text follow-ups ride on a yes/no only when everything it
+  gates is explanatory (verified against all five forms); `worked_today = false` → one
+  combined day-off screen; answers persist locally on every change and reopening lands on
+  the same screen. Rating and home match the canvas; Archivo + JetBrains Mono loaded.
+- **Outbox** (`src/offline/outbox.ts`, pure, 11 failure-mode tests): one item per
+  (form, date), versioned payload, a fresh `clientRef` per version; exponential backoff
+  2 s → 10 min cap; `rehydrate` un-sticks anything mid-send when the app died; 4xx from
+  `submit_report` (42501, 22023) is permanent and waits for a person, everything else
+  retries. **Edit while an earlier version is still unsent:** the item's payload is
+  replaced and re-versioned; if v1 was in flight its result is discarded and v2 is sent
+  after it — the server ends with the newest answers exactly once.
+- **`submit_report(p_client_ref)`** (0008): a retry carrying a ref the server already
+  recorded returns `duplicate: true` and changes nothing — proven live.
+- **Review / Sent / Home filed state** follow the outbox live (queued → sending → sent /
+  failed with retry). Editing until 06:00 local; backfill from History for missed days
+  within 7 days; History shows the person's own figures only.
+- **Not yet:** photos (phase 6), location opt-in box on the review screen (location phase),
+  push (phase 8).
+
 ## 7. Notifications (phase 8)
 
 `notify-daily` runs on cron every 15 minutes. In one SQL statement it finds every person who:
@@ -444,7 +466,7 @@ Pure logic only, `jest` + `ts-jest`, no device needed:
 | Test         | Covers                                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------------------------- |
 | `visibility` | `visible_if` chains, cascade hide (`fault=false` hides note _and_ photo), stale answers dropped on hide |
-| `dayoff`      | `worked_today=false` → 3 visible questions, 2 screens, `EXCUSED`; catering still required |
+| `dayoff`     | `worked_today=false` → 3 visible questions, 2 screens, `EXCUSED`; catering still required               |
 | `validation` | zod built from `required` + `validation.min/max`, per type                                              |
 | `drivePath`  | all four path variables, missing city, two shows, unicode names, sanitisation, filename format          |
 | `queue`      | reducer: enqueue, backoff, restart rehydration, max attempts, dedupe                                    |

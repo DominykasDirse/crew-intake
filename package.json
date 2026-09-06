@@ -24,10 +24,13 @@
     "restore:proof": "deno run --allow-read --allow-write --allow-run --allow-env scripts/restore-proof.ts",
     "functions:deploy": "supabase functions deploy --use-api",
     "auth:test": "deno run --allow-net --allow-env --env-file=.env scripts/auth-test.ts",
-    "bootstrap": "deno run --allow-net --allow-env --allow-run --allow-write --allow-read --env-file=.env scripts/bootstrap-admin.ts"
+    "bootstrap": "deno run --allow-net --allow-env --allow-run --allow-write --allow-read --env-file=.env scripts/bootstrap-admin.ts",
+    "submit:test": "deno run --allow-net --allow-env --env-file=.env scripts/submit-test.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",
+    "@expo-google-fonts/archivo": "^0.4.2",
+    "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@hookform/resolvers": "^5.9.1",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@sentry/react-native": "~7.11.0",
@@ -39,6 +42,7 @@
     "expo-constants": "~57.0.17",
     "expo-device": "~57.0.1",
     "expo-file-system": "~57.0.6",
+    "expo-font": "~57.0.3",
     "expo-image-manipulator": "~57.0.15",
     "expo-image-picker": "~57.0.15",
     "expo-linking": "~57.0.9",

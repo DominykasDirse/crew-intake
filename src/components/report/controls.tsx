@@ -70,7 +70,13 @@ export function YesNo({
         onPress={() => onPick(v)}
         style={[s.yn, { height, backgroundColor: bg, borderColor: on ? bg : colors.border }]}
       >
-        <Text style={[s.ynText, { fontSize: height >= 76 ? 19 : 18 }, on && { color: colors.bg }]}>
+        <Text
+          style={[
+            s.ynText,
+            { fontFamily: fonts.sans400, fontSize: height >= 76 ? 19 : 18 },
+            on && { color: colors.bg },
+          ]}
+        >
           {label}
         </Text>
       </Pressable>
@@ -161,7 +167,7 @@ export function ChipChoice<T extends string>({
             onPress={() => onPick(o.value)}
             style={[s.chip, on && { backgroundColor: colors.accent, borderColor: colors.accent }]}
           >
-            <Text style={[s.chipText, on && { color: colors.bg, fontWeight: '600' }]}>
+            <Text style={[s.chipText, on && { fontFamily: fonts.sans600, color: colors.bg }]}>
               {o.label}
             </Text>
           </Pressable>
@@ -183,8 +189,8 @@ const s = StyleSheet.create({
     borderColor: colors.border,
   },
   blockOn: { backgroundColor: colors.accent, borderColor: colors.accent },
-  blockText: { fontFamily: fonts.mono, fontSize: 22, fontWeight: '600', color: colors.muted },
-  small: { fontSize: 12, color: colors.muted },
+  blockText: { fontFamily: fonts.mono600, fontSize: 22, color: colors.muted },
+  small: { fontFamily: fonts.sans400, fontSize: 12, color: colors.muted },
   yn: {
     flex: 1,
     alignItems: 'center',
@@ -192,9 +198,10 @@ const s = StyleSheet.create({
     borderRadius: radius.control,
     borderWidth: 1,
   },
-  ynText: { fontWeight: '700', color: colors.text2, fontFamily: fonts.sans },
-  followLabel: { fontSize: 14, fontWeight: '600', color: colors.text2 },
+  ynText: { fontFamily: fonts.sans700, color: colors.text2 },
+  followLabel: { fontFamily: fonts.sans600, fontSize: 14, color: colors.text2 },
   textarea: {
+    fontFamily: fonts.sans400,
     minHeight: 84,
     borderRadius: radius.control,
     borderWidth: 1,
@@ -203,10 +210,9 @@ const s = StyleSheet.create({
     color: colors.text,
     fontSize: 16,
     padding: 14,
-    fontFamily: fonts.sans,
   },
-  number: { flex: 1, minHeight: 64, fontSize: 28, fontFamily: fonts.mono, textAlign: 'center' },
-  unit: { fontSize: 16, color: colors.muted },
+  number: { fontFamily: fonts.mono400, flex: 1, minHeight: 64, fontSize: 28, textAlign: 'center' },
+  unit: { fontFamily: fonts.sans400, fontSize: 16, color: colors.muted },
   chip: {
     paddingVertical: 13,
     paddingHorizontal: 18,
@@ -217,5 +223,5 @@ const s = StyleSheet.create({
     borderColor: colors.border,
     justifyContent: 'center',
   },
-  chipText: { fontSize: 15, fontWeight: '500', color: colors.text2 },
+  chipText: { fontFamily: fonts.sans500, fontSize: 15, color: colors.text2 },
 });
