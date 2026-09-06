@@ -242,7 +242,8 @@
     "neverFiled": "Dar nieko nepateikta.",
     "ownOnly": "Tik jūsų dienos. Niekas su niekuo nelyginamas.",
     "notAssigned": "ne ture",
-    "fileNow": "Pateikti dabar"
+    "fileNow": "Pateikti dabar",
+    "beforeJoin": "dar neprisijungęs"
   },
   "sent": {
     "title": "Išsiųsta",

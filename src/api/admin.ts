@@ -1,3 +1,5 @@
+import { localReportDate } from '@/lib/reportDate';
+
 import { invokeFn } from './functions';
 import { supabase } from './supabase';
 
@@ -115,14 +117,19 @@ export async function listAssignments(userId: string): Promise<AssignmentRow[]> 
 
 /** Assignment spanning the whole tour (RLS: admin only). */
 export async function assignToTour(userId: string, tourId: string) {
-  const t = await supabase.from('tours').select('starts_on,ends_on').eq('id', tourId).single();
+  const t = await supabase
+    .from('tours')
+    .select('starts_on,ends_on,timezone')
+    .eq('id', tourId)
+    .single();
   if (t.error) throw t.error;
-  const { error } = await supabase.from('assignments').insert({
-    user_id: userId,
-    tour_id: tourId,
-    starts_on: t.data.starts_on,
-    ends_on: t.data.ends_on,
-  });
+  // asked from the later of the tour start and today (tour timezone), never for days before
+  const today = localReportDate(new Date(), t.data.timezone);
+  const starts_on = t.data.starts_on > today ? t.data.starts_on : today;
+  if (starts_on > t.data.ends_on) throw new Error('tour has already ended');
+  const { error } = await supabase
+    .from('assignments')
+    .insert({ user_id: userId, tour_id: tourId, starts_on, ends_on: t.data.ends_on });
   if (error) throw error;
 }
 

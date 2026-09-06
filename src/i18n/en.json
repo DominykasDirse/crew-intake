@@ -238,7 +238,8 @@
     "neverFiled": "Nothing filed yet.",
     "ownOnly": "Your own days only. Nobody is compared to anyone.",
     "notAssigned": "not on tour",
-    "fileNow": "File now"
+    "fileNow": "File now",
+    "beforeJoin": "not yet joined"
   },
   "sent": {
     "title": "Sent",

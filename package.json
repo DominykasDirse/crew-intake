@@ -27,7 +27,8 @@
     "bootstrap": "deno run --allow-net --allow-env --allow-run --allow-write --allow-read --env-file=.env scripts/bootstrap-admin.ts",
     "submit:test": "deno run --allow-net --allow-env --env-file=.env scripts/submit-test.ts",
     "env:check": "node scripts/check-public-env.js",
-    "eas-build-pre-install": "node scripts/check-public-env.js"
+    "eas-build-pre-install": "node scripts/check-public-env.js",
+    "compliance:test": "deno run --allow-net --allow-env --env-file=.env scripts/compliance-test.ts"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

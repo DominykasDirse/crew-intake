@@ -72,9 +72,9 @@ Deno.serve(async (req) => {
   const group = await db.from('groups').select('id').eq('id', b.group_id).eq('is_active', true)
     .maybeSingle();
   if (!group.data) return json({ code: 'unknown_group', message: 'group not found' }, 400);
-  let tour: { id: string; starts_on: string; ends_on: string } | null = null;
+  let tour: { id: string; starts_on: string; ends_on: string; timezone: string } | null = null;
   if (b.tour_id) {
-    const t = await db.from('tours').select('id,starts_on,ends_on').eq('id', b.tour_id)
+    const t = await db.from('tours').select('id,starts_on,ends_on,timezone').eq('id', b.tour_id)
       .maybeSingle();
     if (!t.data) return json({ code: 'unknown_tour', message: 'tour not found' }, 400);
     tour = t.data;
@@ -116,7 +116,16 @@ Deno.serve(async (req) => {
         await db.from('assignments').insert({
           tour_id: tour.id,
           user_id: userId,
-          starts_on: tour.starts_on,
+          // asked from the later of the tour start and today (tour timezone), never for days before
+          starts_on: (() => {
+            const today = new Intl.DateTimeFormat('en-CA', {
+              timeZone: tour.timezone,
+              year: 'numeric',
+              month: '2-digit',
+              day: '2-digit',
+            }).format(new Date());
+            return tour.starts_on > today ? tour.starts_on : today;
+          })(),
           ends_on: tour.ends_on,
         }),
         'assignment',

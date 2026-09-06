@@ -598,6 +598,7 @@ export type Database = {
       };
       profiles: {
         Row: {
+          active_from: string | null;
           created_at: string;
           first_name: string;
           full_name: string | null;
@@ -616,6 +617,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          active_from?: string | null;
           created_at?: string;
           first_name: string;
           full_name?: string | null;
@@ -634,6 +636,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          active_from?: string | null;
           created_at?: string;
           first_name?: string;
           full_name?: string | null;

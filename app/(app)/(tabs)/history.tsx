@@ -150,7 +150,11 @@ export default function History() {
                 {chip ? (
                   <Chip kind={chip.kind} label={chip.label} />
                 ) : (
-                  <Text style={s.rowMuted}>{t('history.notAssigned')}</Text>
+                  <Text style={s.rowMuted}>
+                    {r.status === 'before_join'
+                      ? t('history.beforeJoin')
+                      : t('history.notAssigned')}
+                  </Text>
                 )}
                 {canFile ? <Text style={s.fileNow}>{t('history.fileNow')}</Text> : null}
                 {onPress ? <ChevronRight size={16} /> : null}

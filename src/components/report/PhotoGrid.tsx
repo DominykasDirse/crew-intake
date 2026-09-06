@@ -18,8 +18,8 @@ import {
 import { useAttachmentStates } from '@/api/attachments';
 import { CameraIcon, Check, PlusIcon, WarningIcon } from '@/components/icons';
 import { Button } from '@/components/ui';
-import { photosFor, type UploadItem } from '@/offline/uploads';
-import { useUploads } from '@/offline/uploadsStore';
+import type { UploadItem } from '@/offline/uploads';
+import { usePhotosFor, useUploads } from '@/offline/uploadsStore';
 import { pickPhoto, takePhoto } from '@/photos/capture';
 import { colors, fonts, radius } from '@/theme';
 
@@ -43,7 +43,7 @@ export function PhotoGrid({
   const { t } = useTranslation();
   const net = useNetInfo();
   const offline = net.isConnected === false || net.isInternetReachable === false;
-  const items = useUploads((s) => photosFor(s.uploads, formId, reportDate, questionKey));
+  const items = usePhotosFor(formId, reportDate, questionKey);
   const addPhoto = useUploads((s) => s.addPhoto);
   const removePhoto = useUploads((s) => s.removePhoto);
   const retry = useUploads((s) => s.retry);

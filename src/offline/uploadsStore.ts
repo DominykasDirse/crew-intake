@@ -5,6 +5,7 @@
 // successful send and by any screen that loads a submission. Drains after add, after a
 // report is sent, on reconnect, on foreground, on a timer, and once after rehydration.
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useMemo } from 'react';
 import NetInfo from '@react-native-community/netinfo';
 import { AppState } from 'react-native';
 import { create } from 'zustand';
@@ -23,6 +24,7 @@ import {
   type UploadItem,
   type UploadsState,
   uploadsReducer,
+  photosFor,
 } from './uploads';
 
 export const BUCKET = 'attachments';
@@ -220,3 +222,20 @@ AppState.addEventListener('change', (s) => {
 NetInfo.addEventListener((state) => {
   if (state.isConnected && state.isInternetReachable !== false) void useUploads.getState().drain();
 });
+
+/**
+ * Photos for a question. Selects the raw items slice (a stable reference) and derives the
+ * array with useMemo — a selector that returned photosFor(...) directly would build a new
+ * array on every getSnapshot call and loop the renderer (eslint: crew-intake/no-fresh-selector).
+ */
+export function usePhotosFor(
+  formId: string,
+  reportDate: string,
+  questionKey?: string,
+): UploadItem[] {
+  const items = useUploads((s) => s.uploads.items);
+  return useMemo(
+    () => photosFor({ items }, formId, reportDate, questionKey),
+    [items, formId, reportDate, questionKey],
+  );
+}
