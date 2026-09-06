@@ -97,7 +97,7 @@ try {
   console.log('\nown view');
   const cal =
     (await me.rpc('report_calendar', { p_user_id: ids.user!, p_from: daysAgo(14), p_to: today }))
-      .data as { report_date: string; status: string; expected: boolean }[];
+      .data as { report_date: string; status: string; expected: boolean; reason: string | null }[];
   check(
     'no day is missed or late',
     cal.every((r) => r.status !== 'missed' && r.status !== 'late'),
@@ -113,6 +113,24 @@ try {
   check(
     'today is expected and pending',
     cal.find((r) => r.report_date === today)?.status === 'pending',
+    cal.at(-1),
+  );
+  console.log('\nreason on every day (decision 2)');
+  check(
+    'every day carries a reason',
+    cal.every((r) => typeof r.reason === 'string' && r.reason.length > 0),
+    cal.filter((r) => !r.reason),
+  );
+  check(
+    'earlier days say before_join / not_assigned, never no_report',
+    cal.filter((r) => r.report_date < today).every((r) =>
+      r.reason === 'before_join' || r.reason === 'not_assigned'
+    ),
+    cal.filter((r) => r.report_date < today).map((r) => r.reason),
+  );
+  check(
+    "today's reason is pending",
+    cal.find((r) => r.report_date === today)?.reason === 'pending',
     cal.at(-1),
   );
   const sum =
@@ -137,8 +155,19 @@ try {
   );
   const adminCal =
     (await svc.rpc('report_calendar', { p_user_id: ids.user!, p_from: daysAgo(14), p_to: today }))
-      .data as { status: string }[];
+      .data as { report_date: string; status: string; reason: string | null }[];
   check('admin calendar has zero missed rows', adminCal.every((r) => r.status !== 'missed'));
+  check(
+    'the admin reads the same reason on every day (same function both sides)',
+    adminCal.length === cal.length &&
+      adminCal.every((r, i) => r.reason === cal[i].reason && r.report_date === cal[i].report_date),
+    adminCal.map((r) => r.reason),
+  );
+  check(
+    'summary carries the decision-2 counters: edited_after_deadline=0, notes=0',
+    adminSum.edited_after_deadline === 0 && adminSum.notes === 0,
+    adminSum,
+  );
 
   console.log('\nthe rule also holds for a backdated assignment: active_from wins over starts_on');
   await svc.from('assignments').update({ starts_on: daysAgo(14) }).eq('user_id', ids.user!);

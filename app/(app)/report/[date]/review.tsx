@@ -10,12 +10,13 @@ import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useGroup, usePublishedForm, useSubmission } from '@/api/reports';
+import { useCalendar, useGroup, usePublishedForm, useSubmission } from '@/api/reports';
 import { Chip, type ChipKind } from '@/components/report/chrome';
 import { Button } from '@/components/ui';
 import { formatAnswer, questionLabel } from '@/forms/format';
 import { buildScreens, screenQuestions } from '@/forms/screens';
 import { deriveStatus } from '@/forms/status';
+import { editSentence } from '@/lib/reasons';
 import type { Answers, Question } from '@/forms/types';
 import { pruneAnswers, visibleQuestions } from '@/forms/visibility';
 import {
@@ -54,6 +55,8 @@ export default function Review() {
   const uploads = useUploads((s) => s.uploads);
   const pruneHidden = useUploads((s) => s.pruneHidden);
   const server = useSubmission(profile?.user_id, formId, date ?? '');
+  const dayRow = useCalendar(profile?.user_id, date ?? '', date ?? '');
+  const editFact = dayRow.data?.[0] ? editSentence(dayRow.data[0], t, i18n.language, tz) : null;
 
   const serverAnswers = useMemo<Answers | null>(() => {
     if (!server.data) return null;
@@ -206,6 +209,16 @@ export default function Review() {
                   filed: localStamp(new Date(rec.submittedAt), i18n.language, tz),
                   deadline: localStamp(new Date(rec.deadlineAt), i18n.language, tz),
                 })}
+          </Text>
+        )}
+        {mode === 'sent' && editFact && (
+          <Text
+            style={[
+              s.note,
+              dayRow.data?.[0]?.edited_late_minutes != null && { color: colors.amber },
+            ]}
+          >
+            {editFact}
           </Text>
         )}
         {outboxItem?.status === 'failed' && (

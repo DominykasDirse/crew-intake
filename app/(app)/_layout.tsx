@@ -9,6 +9,7 @@ export default function AppLayout() {
       <Stack.Screen name="report/[date]/index" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="report/[date]/review" options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="report/[date]/sent" options={{ animation: 'fade' }} />
+      <Stack.Screen name="day/[date]/index" options={{ animation: 'slide_from_right' }} />
     </Stack>
   );
 }

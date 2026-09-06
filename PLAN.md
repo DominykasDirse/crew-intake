@@ -186,6 +186,36 @@ the previous answer values are written to `audit_log` before they are replaced (
 `tours.currency default 'EUR'`, `groups.lead_user_id`. The Drive folder is built from
 `last_name`/`first_name`; `full_name` is never split (Q9).
 
+### The record (decision 2, 2026-09-06)
+
+The filed/missed record feeds final pay, so it is built to be disputed:
+
+- **Same function both sides.** `report_calendar` and `compliance_summary` are the only
+  source of the figures; the person's History and the admin views call the same RPCs.
+- **Every day carries a `reason`:** `on_time`, `after_deadline`, `day_off`, `no_report`,
+  `pending`, `before_join`, `not_assigned`. The app renders it as one sentence with the
+  filing time and the deadline (`src/lib/reasons.ts`); the day view, History and the sent
+  review all use it.
+- **Edits are visible, not penalised.** `report_calendar` returns `edited_at`,
+  `edit_count` (audit `edit` rows) and `edited_late_minutes` (minutes between the deadline
+  and the last edit, null when the last edit was before it). `is_late` stays fixed at first
+  filing, so "filed on time, edited 4h after the deadline" appears next to the on-time chip
+  on the day view, as an EDITED LATE mark in History and under the record on the sent
+  review. `compliance_summary.edited_after_deadline` counts such days.
+- **`day_notes`:** a note by the person on one date. Server-timestamped, immutable
+  (`tg_day_notes_guard`), never deletable, readable by the person, admins and the group
+  lead. An admin can resolve a note once (`resolved_at/by/resolution`, then immutable). A
+  note changes no count; `note_count` per day and `notes` in the summary make it visible.
+  Both the table (`day_notes_note_chk`) and the app cap a note at 500 characters; a
+  resolution at 1000.
+- **The streak is gone.** It rewarded reporting, not honest reporting. The seven-day strip
+  stays as plain information.
+- **Tests:** Jest `tests/reasons.test.ts`; live `rls:test` (note RLS, immutability, admin
+  one-time resolution, edit-after-deadline fact identical on both sides) and
+  `compliance:test` (a reason on every day, admin reads the same reasons).
+- **Not built here:** an admin screen for notes (phase 9). Until then admins read and
+  resolve notes in the Supabase dashboard (`day_notes` table).
+
 ### Indexes (for the calendar and dashboard queries you will build in phase 9)
 
 ```

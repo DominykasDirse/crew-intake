@@ -28,6 +28,8 @@ type Summary = {
   missed: number;
   pending: number;
   late_minutes_total: number;
+  edited_after_deadline: number;
+  notes: number;
   last_filed: string | null;
 };
 
@@ -123,6 +125,9 @@ export default function History() {
                 {sum.late > 0 && sum.late_minutes_total
                   ? ` · ${t('history.lateTotal', { total: formatMinutes(sum.late_minutes_total) })}`
                   : ''}
+                {sum.edited_after_deadline > 0
+                  ? ` · ${t('history.editedAfter', { count: sum.edited_after_deadline })}`
+                  : ''}
               </Text>
               <Text style={s.figureSub}>
                 {sum.last_filed
@@ -136,20 +141,19 @@ export default function History() {
             </Text>
           )}
           <Text style={s.fine}>{t('history.ownOnly')}</Text>
+          <Text style={s.fine}>{t('history.tapDay')}</Text>
         </View>
 
         <View style={{ gap: 8 }}>
           {rows.map((r) => {
             const chip = chipFor(r.status, r.report_date, r.late_minutes);
             const canFile = r.status === 'missed' && fileable.has(r.report_date);
-            const canOpen =
+            const opens =
+              r.expected ||
               ['filed', 'late', 'excused'].includes(r.status) ||
-              !!outbox[`${form.data?.form.id}|${r.report_date}`];
-            const onPress = canFile
-              ? () => router.push(`/report/${r.report_date}`)
-              : canOpen
-                ? () => router.push(`/report/${r.report_date}/review`)
-                : undefined;
+              !!outbox[`${form.data?.form.id}|${r.report_date}`] ||
+              (r.note_count ?? 0) > 0;
+            const onPress = opens ? () => router.push(`/day/${r.report_date}`) : undefined;
             return (
               <Pressable
                 key={r.report_date}
@@ -173,6 +177,14 @@ export default function History() {
                       : t('history.notAssigned')}
                   </Text>
                 )}
+                {r.edited_late_minutes != null ? (
+                  <Text style={s.editedMark}>{t('history.editedMark')}</Text>
+                ) : null}
+                {(r.note_count ?? 0) > 0 ? (
+                  <Text style={s.noteMark}>
+                    {t('history.noteMark', { count: r.note_count ?? 0 })}
+                  </Text>
+                ) : null}
                 {canFile ? <Text style={s.fileNow}>{t('history.fileNow')}</Text> : null}
                 {onPress ? <ChevronRight size={16} /> : null}
               </Pressable>
@@ -214,4 +226,6 @@ const s = StyleSheet.create({
   rowDate: { fontFamily: fonts.mono400, fontSize: 12, color: colors.text2 },
   rowMuted: { fontFamily: fonts.sans400, fontSize: 12, color: colors.dim },
   fileNow: { fontFamily: fonts.sans600, fontSize: 13, color: colors.accent },
+  editedMark: { fontFamily: fonts.mono400, fontSize: 10, color: colors.amber, letterSpacing: 0.5 },
+  noteMark: { fontFamily: fonts.mono400, fontSize: 10, color: colors.text2, letterSpacing: 0.5 },
 });

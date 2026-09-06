@@ -18,6 +18,9 @@ See [PLAN.md](PLAN.md) for scope, schema, and decisions.
 | `npm run db:types`                                                 | regenerate `src/types/database.types.ts`                                                                  |
 | `npm run seed`                                                     | seed groups, tour and forms from `forms.seed.json`                                                        |
 | `npm run rls:test`                                                 | live RLS + `submit_report` acceptance test (creates and removes throwaway users)                          |
+| `npm run auth:test`                                                | live invite / claim / sign-in test                                                                        |
+| `npm run submit:test`                                              | live `submit_report` idempotency + outbox contract test                                                   |
+| `npm run compliance:test`                                          | live compliance rule test: late joiner, reasons, admin sees the same figures                              |
 | `npm run sync:test`                                                | live Drive pipeline test: upload → path → rename → resync → backup; saves the backup to `.backup-<date>/` |
 | `npm run restore:proof -- --dir .backup-<date> --db <scratch url>` | restores a fetched backup into a scratch DB and verifies counts + FKs                                     |
 | `npm run functions:deploy`                                         | deploy all Edge Functions (server-side bundling, no Docker)                                               |

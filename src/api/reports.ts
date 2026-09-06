@@ -3,14 +3,13 @@
 import { useQuery } from '@tanstack/react-query';
 
 import type { Form, Question } from '@/forms/types';
-import { type CalendarRow, streakFrom } from '@/lib/streak';
+import type { CalendarRow } from '@/lib/calendarRow';
 import { useUploads } from '@/offline/uploadsStore';
 import { useLocal } from '@/store/local';
 
 import { supabase, type Tables } from './supabase';
 
 export type { CalendarRow };
-export { streakFrom };
 
 /** The published daily form for the person's group (+ questions), cached locally. */
 export function usePublishedForm(groupId: string | null | undefined) {
@@ -85,7 +84,7 @@ export function useDayContext(userId: string | undefined, date: string) {
   });
 }
 
-/** report_calendar for the person over [from, to]; the strip, streak and history come from it. */
+/** report_calendar for the person over [from, to]; the strip, history and the day view come from it. */
 export function useCalendar(userId: string | undefined, from: string, to: string) {
   return useQuery({
     queryKey: ['calendar', userId, from, to],

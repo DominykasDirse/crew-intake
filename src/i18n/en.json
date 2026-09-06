@@ -147,8 +147,6 @@
     "ofSeven": "{{n}} of 7",
     "legendFiled": "Filed",
     "legendDayOff": "Day off",
-    "streak": "Your streak",
-    "streakCaption": "Days in a row you have filed or marked a day off.",
     "queued": "queued · sends when back online",
     "sendFailed": "could not send · open to retry",
     "photosUploading_one": "{{count}} photo uploading",
@@ -242,7 +240,12 @@
     "notAssigned": "not on tour",
     "fileNow": "File now",
     "beforeJoin": "not yet joined",
-    "lateTotal": "{{total}} late in total"
+    "lateTotal": "{{total}} late in total",
+    "editedMark": "EDITED LATE",
+    "noteMark_one": "{{count}} NOTE",
+    "noteMark_other": "{{count}} NOTES",
+    "editedAfter": "{{count}} edited after the deadline",
+    "tapDay": "Tap a day to see why it counts the way it does, and to add a note."
   },
   "sent": {
     "title": "Sent",
@@ -252,7 +255,6 @@
     "late": "late",
     "dayOff": "day off",
     "pending": "sending",
-    "streak": "Streak",
     "noteSent": "Your report is with the production office.",
     "noteQueued": "No connection right now. Your report is saved on this phone and will send itself — you can close the app.",
     "noteFailed": "The server refused this report: {{reason}}. Your answers are kept.",
@@ -288,5 +290,29 @@
     "permissionBody": "Allow camera or photo access in the phone settings to attach a photo.",
     "removeTitle": "Remove this photo?",
     "remove": "Remove"
+  },
+  "reason": {
+    "onTime": "Filed {{filed}}, before the deadline of {{deadline}}. On time.",
+    "late": "Filed {{filed}}, after the deadline of {{deadline}}: {{late}} late. It still counts.",
+    "dayOff": "Marked as a day off, {{filed}}. Counts as filed.",
+    "noReport": "Nothing was filed before the deadline of {{deadline}}. Counted as missed. It can still be filed within 7 days and is then recorded as late.",
+    "pending": "Nothing filed yet. The deadline is {{deadline}}.",
+    "beforeJoin": "Before you joined this tour. Not counted either way.",
+    "notAssigned": "You were not on a tour this day. Not counted either way.",
+    "edited_one": "Last edited {{when}} ({{count}} edit).",
+    "edited_other": "Last edited {{when}} ({{count}} edits).",
+    "editedLate_one": "Filed on time, then edited {{when}}: {{late}} after the deadline ({{count}} edit). Still on time. The edit is visible to the production office.",
+    "editedLate_other": "Filed on time, then edited {{when}}: {{late}} after the deadline ({{count}} edits). Still on time. The edit is visible to the production office."
+  },
+  "day": {
+    "title": "This day",
+    "editedChip": "EDITED AFTER DEADLINE",
+    "sameFunction": "These are the same figures the production office sees, from the same source.",
+    "notes": "Your notes on this day",
+    "noNotes": "No notes yet.",
+    "noteExplain": "Disagree with how this day counts? Write it here. The note is timestamped, cannot be changed, is visible to the production office, and does not change the count.",
+    "notePlaceholder": "What happened, in a few sentences",
+    "addNote": "Add note",
+    "resolvedAt": "Answered {{when}}"
   }
 }

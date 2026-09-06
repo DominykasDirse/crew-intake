@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { streakFrom, useCalendar, usePublishedForm } from '@/api/reports';
+import { useCalendar, usePublishedForm } from '@/api/reports';
 import { Check } from '@/components/icons';
 import { SevenDayStrip, type StripStatus } from '@/components/report/chrome';
 import { Button } from '@/components/ui';
@@ -39,7 +39,6 @@ export default function Sent() {
       ? 'filed'
       : ((rows.find((r) => r.report_date === d)?.status as StripStatus | undefined) ?? 'unknown'),
   );
-  const streak = Math.max(streakFrom(rows, date), 1);
 
   const status = item?.status ?? 'sent';
   const title =
@@ -85,16 +84,7 @@ export default function Sent() {
         </View>
 
         <View style={s.card}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'baseline',
-              justifyContent: 'space-between',
-            }}
-          >
-            <Text style={s.kicker}>{t('sent.streak')}</Text>
-            <Text style={s.streakNum}>{streak}</Text>
-          </View>
+          <Text style={s.kicker}>{t('home.lastSeven')}</Text>
           <SevenDayStrip days={strip} height={30} panel />
         </View>
 
@@ -153,7 +143,6 @@ const s = StyleSheet.create({
     borderRadius: radius.control,
   },
   kicker: { ...type.kicker, color: colors.muted },
-  streakNum: { fontFamily: fonts.mono600, fontSize: 30, color: colors.accent, lineHeight: 32 },
   note: {
     fontFamily: fonts.sans400,
     fontSize: 13,

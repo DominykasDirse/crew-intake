@@ -215,6 +215,54 @@ export type Database = {
           },
         ];
       };
+      day_notes: {
+        Row: {
+          created_at: string;
+          id: string;
+          note: string;
+          report_date: string;
+          resolution: string | null;
+          resolved_at: string | null;
+          resolved_by: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          note: string;
+          report_date: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          note?: string;
+          report_date?: string;
+          resolution?: string | null;
+          resolved_at?: string | null;
+          resolved_by?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'day_notes_resolved_by_fkey';
+            columns: ['resolved_by'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+          {
+            foreignKeyName: 'day_notes_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'profiles';
+            referencedColumns: ['user_id'];
+          },
+        ];
+      };
       drive_folders: {
         Row: {
           created_at: string;
@@ -911,9 +959,14 @@ export type Database = {
         Args: { p_from: string; p_to: string; p_user_id: string };
         Returns: {
           deadline_at: string;
+          edit_count: number;
+          edited_at: string;
+          edited_late_minutes: number;
           expected: boolean;
           is_late: boolean;
           late_minutes: number;
+          note_count: number;
+          reason: string;
           report_date: string;
           status: string;
           submission_id: string;

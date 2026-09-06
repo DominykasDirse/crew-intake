@@ -538,6 +538,155 @@ try {
     );
   }
 
+  // ------------------------------------------------------------------ day notes
+  console.log('\nday notes (the dispute record)');
+  {
+    const ins = await A.client.from('day_notes').insert({
+      user_id: A.id,
+      report_date: daysAgo(5),
+      note: 'Van broke down outside Riga, no signal until morning.',
+    }).select('id,created_at').single();
+    check(
+      'A writes a note on a missed day; the server timestamps it',
+      ins.error === null && !!ins.data?.created_at,
+      ins.error?.message,
+    );
+    const noteId = ins.data!.id;
+    const forge = await A.client.from('day_notes').insert({
+      user_id: B.id,
+      report_date: daysAgo(5),
+      note: 'x',
+    });
+    check('A cannot write a note as B', forge.error !== null, forge.error?.message);
+    const selfResolve = await A.client.from('day_notes').insert({
+      user_id: A.id,
+      report_date: daysAgo(4),
+      note: 'y',
+      resolved_at: new Date().toISOString(),
+      resolved_by: A.id,
+      resolution: 'ok',
+    });
+    check(
+      'A cannot pre-resolve their own note',
+      selfResolve.error !== null,
+      selfResolve.error?.message,
+    );
+    const edit = await A.client.from('day_notes').update({ note: 'changed' }).eq('id', noteId)
+      .select();
+    check(
+      'A cannot change the note (0 rows or refused)',
+      edit.error !== null || (edit.data ?? []).length === 0,
+    );
+    const del = await A.client.from('day_notes').delete().eq('id', noteId).select();
+    check('A cannot delete the note', (del.data ?? []).length === 0);
+    const calA = must(
+      await A.client.rpc('report_calendar', {
+        p_user_id: A.id,
+        p_from: daysAgo(5),
+        p_to: daysAgo(5),
+      }),
+      'A day',
+    ) as { note_count: number; reason: string; status: string }[];
+    check(
+      'the day carries note_count=1 and reason=no_report; the count is unchanged (still missed)',
+      calA[0]?.note_count === 1 && calA[0]?.reason === 'no_report' && calA[0]?.status === 'missed',
+      calA[0],
+    );
+    const seenByB = must(await B.client.from('day_notes').select('id'), 'B notes');
+    check("B cannot see A's note", seenByB.length === 0);
+    const seenByD = must(
+      await D.client.from('day_notes').select('id').eq('id', noteId),
+      'admin notes',
+    );
+    check("admin sees A's note", seenByD.length === 1);
+    const resolve = await D.client.from('day_notes').update({
+      resolved_at: new Date().toISOString(),
+      resolved_by: D.id,
+      resolution: 'Confirmed with the driver. Recorded.',
+    }).eq('id', noteId).select('resolved_at,resolved_by,resolution');
+    check(
+      'admin resolves once',
+      resolve.error === null && resolve.data?.[0]?.resolved_by === D.id &&
+        !!resolve.data?.[0]?.resolution,
+      resolve.error?.message,
+    );
+    const again = await D.client.from('day_notes').update({ resolution: 'changed my mind' }).eq(
+      'id',
+      noteId,
+    );
+    check(
+      'a resolution cannot be changed once written',
+      again.error !== null,
+      again.error?.message,
+    );
+    const tamper = await D.client.from('day_notes').update({ note: 'rewritten by admin' }).eq(
+      'id',
+      noteId,
+    );
+    check(
+      'even an admin cannot change the note text',
+      tamper.error !== null,
+      tamper.error?.message,
+    );
+    const cnt =
+      (await svc.from('day_notes').select('id', { count: 'exact', head: true }).eq('user_id', A.id))
+        .count;
+    check('the note is still there (nothing deleted)', cnt === 1, cnt);
+  }
+
+  // ------------------------------------------------------------------ edit facts
+  console.log('\nedit facts: on time, then completed after the deadline');
+  {
+    // today's report was filed on time and edited; move its deadline into the past so the
+    // next edit lands "after the deadline" (the deadline is fixed at first filing, so this
+    // is the only way to stage it inside one test run)
+    expectOk(
+      await svc.from('submissions').update({
+        deadline_at: new Date(Date.now() - 4 * 3_600_000).toISOString(),
+      }).eq('user_id', A.id).eq('report_date', today),
+      'shift deadline',
+    );
+    const edit2 = await A.client.rpc('submit_report', {
+      p_form_id: crewForm.id,
+      p_report_date: today,
+      p_answers: { worked_today: false, catering_ok: false },
+    });
+    check(
+      'editing after the deadline keeps is_late=false',
+      edit2.error === null && edit2.data?.is_late === false,
+      edit2.error?.message ?? edit2.data,
+    );
+    const day = must(
+      await A.client.rpc('report_calendar', { p_user_id: A.id, p_from: today, p_to: today }),
+      'today row',
+    ) as {
+      status: string;
+      edit_count: number;
+      edited_late_minutes: number | null;
+      edited_at: string | null;
+    }[];
+    check(
+      'the day shows the edit fact: edit_count ≥ 2, edited ~4h after the deadline, status unchanged',
+      (day[0]?.edit_count ?? 0) >= 2 && (day[0]?.edited_late_minutes ?? 0) >= 235 &&
+        day[0]?.status === 'excused',
+      day[0],
+    );
+    const dayD = must(
+      await D.client.rpc('report_calendar', { p_user_id: A.id, p_from: today, p_to: today }),
+      'admin today row',
+    ) as { edited_late_minutes: number | null }[];
+    check(
+      'the admin sees the same edit fact from the same function',
+      dayD[0]?.edited_late_minutes === day[0]?.edited_late_minutes,
+      { person: day[0]?.edited_late_minutes, admin: dayD[0]?.edited_late_minutes },
+    );
+    const sum = must(
+      await A.client.rpc('compliance_summary', { p_user_id: A.id, p_from: today, p_to: today }),
+      'sum',
+    ) as Record<string, number>;
+    check('summary counts edited_after_deadline', sum.edited_after_deadline === 1, sum);
+  }
+
   // ------------------------------------------------------------------ person B
   console.log('\nperson B (same group)');
   {

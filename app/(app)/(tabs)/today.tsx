@@ -7,7 +7,6 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import {
-  streakFrom,
   useCalendar,
   useDayContext,
   useGroup,
@@ -85,7 +84,6 @@ export default function Today() {
     statusOf,
   );
   const filedCount = strip.filter((x) => x === 'filed' || x === 'late' || x === 'excused').length;
-  const streak = streakFrom(rows, today);
   const nQuestions = form.data ? workingDayScreenCount(form.data.questions) : null;
 
   // the filed card's record: server row first, else the outbox's copy of the server answer
@@ -213,39 +211,22 @@ export default function Today() {
           </View>
         </View>
 
-        {!filed ? (
-          <View style={{ gap: 10, marginTop: 4 }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text style={s.sectionKicker}>{t('home.lastSeven')}</Text>
-              <Text style={[s.mono, { color: colors.text2 }]}>
-                {t('home.ofSeven', { n: filedCount })}
-              </Text>
-            </View>
-            <SevenDayStrip days={strip} />
-            <StripLegend filed={t('home.legendFiled')} dayOff={t('home.legendDayOff')} />
+        <View style={[{ gap: 10, marginTop: 4 }, filed && s.card]}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'baseline',
+              justifyContent: 'space-between',
+            }}
+          >
+            <Text style={s.sectionKicker}>{t('home.lastSeven')}</Text>
+            <Text style={[s.mono, { color: colors.text2 }]}>
+              {t('home.ofSeven', { n: filedCount })}
+            </Text>
           </View>
-        ) : (
-          <View style={[s.card, { gap: 14, marginTop: 4 }]}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'baseline',
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text style={s.sectionKicker}>{t('home.streak')}</Text>
-              <Text style={s.streakNum}>{streak}</Text>
-            </View>
-            <SevenDayStrip days={strip} panel />
-            <Text style={s.streakCaption}>{t('home.streakCaption')}</Text>
-          </View>
-        )}
+          <SevenDayStrip days={strip} panel={filed} />
+          <StripLegend filed={t('home.legendFiled')} dayOff={t('home.legendDayOff')} />
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -289,6 +270,4 @@ const s = StyleSheet.create({
   invoiceTitle: { fontFamily: fonts.sans600, fontSize: 16, color: colors.text },
   invoiceSub: { fontFamily: fonts.sans400, fontSize: 12, color: colors.muted },
   sectionKicker: { ...type.kicker, color: colors.muted },
-  streakNum: { fontFamily: fonts.mono600, fontSize: 28, color: colors.accent, lineHeight: 30 },
-  streakCaption: { fontFamily: fonts.sans400, fontSize: 12, color: colors.muted, lineHeight: 18 },
 });
