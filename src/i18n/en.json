@@ -118,5 +118,96 @@
       "bad_request": "Check the fields."
     },
     "notAdmin": "This account is not an admin."
+  },
+  "tabs": {
+    "today": "Today",
+    "history": "History",
+    "settings": "Settings"
+  },
+  "home": {
+    "noTour": "No tour assigned",
+    "noShow": "No show scheduled",
+    "show": "show",
+    "reportToday": "Report today",
+    "due": "DUE",
+    "questions": "{{n}} questions. About two minutes.",
+    "resume": "Continue where you left off.",
+    "noForm": "No report form is published for your group yet.",
+    "left": "{{time}} left",
+    "reportFiled": "Report filed",
+    "dayOffRecorded": "Day off recorded",
+    "onTime": "on time",
+    "late": "late",
+    "dayOff": "day off",
+    "seeSent": "See what you sent",
+    "invoice": "Upload invoice",
+    "invoiceSoon": "Receipts, fuel, tolls · coming in a later build",
+    "lastSeven": "Last seven days",
+    "ofSeven": "{{n}} of 7",
+    "legendFiled": "Filed",
+    "legendDayOff": "Day off",
+    "streak": "Your streak",
+    "streakCaption": "Days in a row you have filed or marked a day off."
+  },
+  "runner": {
+    "next": "Next",
+    "submit": "Submit",
+    "skip": "Skip this question",
+    "yes": "Yes",
+    "no": "No",
+    "optional": "optional",
+    "kind": {
+      "rating": "Rating",
+      "yesNo": "Yes / no",
+      "number": "Number",
+      "text": "Notes",
+      "photos": "Photos"
+    },
+    "rating": {
+      "low": "Bad night",
+      "high": "Went well",
+      "tap": "Tap a number. One tap moves you on.",
+      "captions": {
+        "1": "Something went badly wrong.",
+        "2": "Harder than it should have been.",
+        "3": "Ordinary night.",
+        "4": "Ran well, minor niggles.",
+        "5": "Everything worked."
+      }
+    },
+    "textPlaceholder": "Type here…",
+    "opensIssue": "Answering yes opens an item for the production office. It stays open until someone closes it.",
+    "range": "Between {{min}} and {{max}}.",
+    "photo": {
+      "add": "Add",
+      "nextBuild": "Photos arrive in the next build. You can skip this for now.",
+      "privacy": "Photos are resized before sending, and location data is removed from them."
+    },
+    "dayOff": {
+      "banner": "Day off recorded. Two quick questions and you are done.",
+      "presets": {
+        "day_off": "Day off",
+        "travel": "Travel day",
+        "not_needed": "Not needed",
+        "other": "Other"
+      },
+      "otherPlaceholder": "A few words…",
+      "footer": "A day off still counts as filed. It is only a miss if nothing is sent at all."
+    },
+    "errors": {
+      "required": "This one needs an answer.",
+      "notNumber": "Enter a number.",
+      "belowMin": "At least {{min}}.",
+      "aboveMax": "At most {{max}}.",
+      "ratingRange": "Pick 1 to 5.",
+      "tooLong": "Too long."
+    }
+  },
+  "review": {
+    "title": "Check and send",
+    "placeholder": "Review and send for {{date}} arrive in the next step. Your answers are saved on this phone."
+  },
+  "history": {
+    "placeholder": "Your own filed / day off / missed days arrive in the next step."
   }
 }

@@ -12,6 +12,7 @@ export default function Settings() {
   const { t } = useTranslation();
   const router = useRouter();
   const profile = useSession((s) => s.profile);
+  const isAdmin = useSession((s) => s.isAdmin);
   const signOut = useSession((s) => s.signOut);
   const refreshProfile = useSession((s) => s.refreshProfile);
   const [saved, setSaved] = useState(false);
@@ -29,6 +30,7 @@ export default function Settings() {
   return (
     <Screen>
       <Title>{t('settings.title')}</Title>
+      <Body muted>{profile?.full_name ?? ''}</Body>
       <Body muted>{t('common.language')}</Body>
       <Choice
         value={current}
@@ -39,7 +41,13 @@ export default function Settings() {
         ]}
       />
       {saved && <Body muted>{t('settings.saved')}</Body>}
-      <Button title={t('common.back')} variant="secondary" onPress={() => router.back()} />
+      {isAdmin && (
+        <Button
+          title={t('today.admin')}
+          variant="secondary"
+          onPress={() => router.push('/admin')}
+        />
+      )}
       <Button title={t('settings.signOut')} variant="danger" onPress={() => void signOut()} />
     </Screen>
   );

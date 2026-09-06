@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+  <style>
+    body { margin: 0; }
+    a { color: #C7DB1E; } a:hover { color: #DCEF3B; }
+  </style>
+</helmet>
+
+<div style="width: 390px; height: 844px; background: #131410; color: #EDEEE1; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; display: flex; flex-direction: column; overflow: hidden;">
+
+  <div style="padding: 62px 20px 0; display: flex; flex-direction: column; gap: 18px;">
+    <div style="display: flex; align-items: center; gap: 14px;">
+      <div style="width: 44px; height: 44px; margin-left: -11px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8C907F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg></div>
+      <div style="flex-grow: 1; height: 4px; background: #22251C; border-radius: 2px; overflow: hidden;">
+        <div style="width: 86%; height: 100%; background: #C7DB1E;"></div>
+      </div>
+      <div style="font-family: 'JetBrains Mono', monospace; font-size: 12px; color: #8C907F;">6/7</div>
+    </div>
+  </div>
+
+  <div style="flex-grow: 1; display: flex; flex-direction: column; gap: 22px; padding: 36px 20px 0;">
+
+    <div style="display: flex; flex-direction: column; gap: 10px;">
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #C7DB1E;">Photos · optional</div>
+      <div style="font-size: 27px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.2; text-wrap: balance;">Photo of the fault</div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px;">
+
+      <div style="position: relative; height: 106px; border-radius: 3px; background: linear-gradient(150deg, #33382A 0%, #1E2119 60%, #2A2F22 100%); border: 1px solid #2C3025; overflow: hidden;">
+        <div style="position: absolute; right: 6px; bottom: 6px; width: 22px; height: 22px; border-radius: 11px; background: #63BC88; display: flex; align-items: center; justify-content: center;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#131410" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5.5 5.5L20 7"></path></svg>
+        </div>
+      </div>
+
+      <div style="position: relative; height: 106px; border-radius: 3px; background: linear-gradient(150deg, #2B3026 0%, #191C15 70%); border: 1px solid #2C3025; overflow: hidden; display: flex; flex-direction: column; justify-content: flex-end;">
+        <div style="padding: 8px; display: flex; flex-direction: column; gap: 5px; background: rgba(19,20,16,0.72);">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #C7DB1E;">64%</div>
+          <div style="height: 3px; background: #2C3025; border-radius: 2px; overflow: hidden;">
+            <div style="width: 64%; height: 100%; background: #C7DB1E;"></div>
+          </div>
+        </div>
+      </div>
+
+      <div style="position: relative; height: 106px; border-radius: 3px; background: #1B1D16; border: 1px solid #E3765F; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E3765F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5"></path><path d="M12 17h.01"></path><circle cx="12" cy="12" r="9"></circle></svg>
+        <div style="font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: #E3765F;">Retry</div>
+      </div>
+
+      <div style="height: 106px; border-radius: 3px; border: 1px dashed #3E4333; background: #16180F; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#8C907F" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6v12"></path><path d="M6 12h12"></path></svg>
+        <div style="font-size: 11px; color: #8C907F;">Add</div>
+      </div>
+
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 12px; border: 1px solid #2C3025; background: #16180F; border-radius: 3px; padding: 14px 16px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DAA93F" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a15 15 0 0 1 20 0"></path><path d="M5.5 12.5a10 10 0 0 1 13 0"></path><path d="M9 16a5 5 0 0 1 6 0"></path><path d="M12 20h.01"></path></svg>
+      <div style="flex-grow: 1; font-size: 13px; line-height: 1.45; color: #C2C5B3;">No signal. Photos will send themselves when you are back online.</div>
+    </div>
+
+    <div style="font-size: 12px; line-height: 1.5; color: #8C907F;">Photos are resized before sending, and location data is removed from them.</div>
+
+  </div>
+
+  <div style="padding: 0 20px 34px; display: flex; flex-direction: column; gap: 12px;">
+    <div style="height: 56px; display: flex; align-items: center; justify-content: center; border-radius: 3px; background: #C7DB1E; color: #131410; font-size: 16px; font-weight: 700;">Next</div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

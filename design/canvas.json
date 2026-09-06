@@ -1,0 +1,97 @@
+{
+  "artboards": [
+    {
+      "file": "Main.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Home · report due"
+    },
+    {
+      "file": "HomeDone.dc.html",
+      "x": 490,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Home · filed"
+    },
+    {
+      "file": "RatingQuestion.dc.html",
+      "x": 980,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Rating · tap it",
+      "is_interactive": true
+    },
+    {
+      "file": "YesNoFollowUp.dc.html",
+      "x": 1470,
+      "y": 0,
+      "w": 390,
+      "h": 844,
+      "title": "Yes / no · tap it",
+      "is_interactive": true
+    },
+    {
+      "file": "PhotoQuestion.dc.html",
+      "x": 0,
+      "y": 1024,
+      "w": 390,
+      "h": 844,
+      "title": "Photos · upload states"
+    },
+    {
+      "file": "DayOff.dc.html",
+      "x": 490,
+      "y": 1024,
+      "w": 390,
+      "h": 844,
+      "title": "Day off · the short path"
+    },
+    {
+      "file": "Review.dc.html",
+      "x": 980,
+      "y": 1024,
+      "w": 390,
+      "h": 844,
+      "title": "Review · location opt-in"
+    },
+    {
+      "file": "Submitted.dc.html",
+      "x": 1470,
+      "y": 1024,
+      "w": 390,
+      "h": 844,
+      "title": "Sent"
+    },
+    {
+      "file": "Components.dc.html",
+      "x": 0,
+      "y": 2048,
+      "w": 1360,
+      "h": 1240,
+      "title": "Components"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-rating",
+      "x": 980,
+      "y": -150,
+      "w": 390,
+      "text": "These two are live — tap the numbers and the Yes/No buttons.\nThe rating control is the thing to judge: one thumb, no scrolling, one tap moves on."
+    },
+    {
+      "id": "note-dayoff",
+      "x": 490,
+      "y": 1920,
+      "w": 390,
+      "text": "A day off is three questions and is filed, not missed. It is never coloured red anywhere in the app."
+    }
+  ],
+  "launch": {
+    "view": "canvas"
+  }
+}

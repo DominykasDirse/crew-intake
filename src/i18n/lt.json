@@ -118,5 +118,96 @@
       "bad_request": "Patikrinkite laukus."
     },
     "notAdmin": "Ši paskyra nėra administratoriaus."
+  },
+  "tabs": {
+    "today": "Šiandien",
+    "history": "Istorija",
+    "settings": "Nustatymai"
+  },
+  "home": {
+    "noTour": "Turas nepriskirtas",
+    "noShow": "Šiandien koncerto nėra",
+    "show": "koncertas",
+    "reportToday": "Šiandienos ataskaita",
+    "due": "LAUKIAMA",
+    "questions": "{{n}} klausimai. Apie dvi minutes.",
+    "resume": "Tęskite nuo ten, kur baigėte.",
+    "noForm": "Jūsų grupei ataskaitos forma dar nepaskelbta.",
+    "left": "liko {{time}}",
+    "reportFiled": "Ataskaita pateikta",
+    "dayOffRecorded": "Poilsio diena pažymėta",
+    "onTime": "laiku",
+    "late": "pavėluotai",
+    "dayOff": "poilsio diena",
+    "seeSent": "Peržiūrėti, ką išsiuntėte",
+    "invoice": "Įkelti sąskaitą",
+    "invoiceSoon": "Čekiai, kuras, kelių mokesčiai · bus vėlesniame leidime",
+    "lastSeven": "Paskutinės septynios dienos",
+    "ofSeven": "{{n}} iš 7",
+    "legendFiled": "Pateikta",
+    "legendDayOff": "Poilsio diena",
+    "streak": "Jūsų serija",
+    "streakCaption": "Dienos iš eilės, kai pateikėte ataskaitą arba pažymėjote poilsio dieną."
+  },
+  "runner": {
+    "next": "Toliau",
+    "submit": "Pateikti",
+    "skip": "Praleisti šį klausimą",
+    "yes": "Taip",
+    "no": "Ne",
+    "optional": "neprivaloma",
+    "kind": {
+      "rating": "Įvertinimas",
+      "yesNo": "Taip / ne",
+      "number": "Skaičius",
+      "text": "Pastabos",
+      "photos": "Nuotraukos"
+    },
+    "rating": {
+      "low": "Bloga naktis",
+      "high": "Pavyko gerai",
+      "tap": "Spustelėkite skaičių. Vienas paspaudimas – ir toliau.",
+      "captions": {
+        "1": "Kažkas nuėjo visai ne taip.",
+        "2": "Sunkiau, nei turėjo būti.",
+        "3": "Įprasta naktis.",
+        "4": "Pavyko gerai, smulkios kliūtys.",
+        "5": "Viskas veikė."
+      }
+    },
+    "textPlaceholder": "Rašykite čia…",
+    "opensIssue": "Atsakius „taip“, gamybos biurui sukuriamas įrašas. Jis lieka atviras, kol kas nors jį uždaro.",
+    "range": "Nuo {{min}} iki {{max}}.",
+    "photo": {
+      "add": "Pridėti",
+      "nextBuild": "Nuotraukos atsiras kitame leidime. Kol kas galite praleisti.",
+      "privacy": "Nuotraukos prieš siunčiant sumažinamos, o vietos duomenys iš jų pašalinami."
+    },
+    "dayOff": {
+      "banner": "Poilsio diena pažymėta. Du trumpi klausimai – ir baigta.",
+      "presets": {
+        "day_off": "Poilsio diena",
+        "travel": "Kelionės diena",
+        "not_needed": "Nereikėjo",
+        "other": "Kita"
+      },
+      "otherPlaceholder": "Keli žodžiai…",
+      "footer": "Poilsio diena vis tiek laikoma pateikta. Praleista tik tada, kai nieko neišsiunčiama."
+    },
+    "errors": {
+      "required": "Čia reikia atsakymo.",
+      "notNumber": "Įveskite skaičių.",
+      "belowMin": "Mažiausiai {{min}}.",
+      "aboveMax": "Daugiausiai {{max}}.",
+      "ratingRange": "Pasirinkite nuo 1 iki 5.",
+      "tooLong": "Per ilgas."
+    }
+  },
+  "review": {
+    "title": "Patikrinti ir išsiųsti",
+    "placeholder": "{{date}} peržiūra ir siuntimas atsiras kitame žingsnyje. Atsakymai išsaugoti šiame telefone."
+  },
+  "history": {
+    "placeholder": "Jūsų pateiktos / poilsio / praleistos dienos atsiras kitame žingsnyje."
   }
 }

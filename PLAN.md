@@ -94,10 +94,11 @@ Types used across all forms: `yes_no` 24, `short_text` 17, `rating` 12, `long_te
 `photo` 5, `number` 3. The invoice form adds `tour_select`, `date`, `single_choice`,
 `money`, `file`.
 
-**`closes_form_if` does not appear anywhere in the seed file.** You listed it as
-something to unit-test. I read it as the `worked_today = no` behaviour, which the seed
-expresses through `visible_if` on every work question. I will implement it that way and
-test it under that name — see Q6.
+**`closes_form_if` is vestigial** — it appears in no question row and nowhere in
+`forms.seed.json` (verified live 2026-09-06). There is no engine for it: visibility is
+`visible_if` alone, and the day-off path is simply what `visible_if` yields when
+`worked_today = false` — `absence_reason`, then `catering_ok` (always visible, required),
+submitted as EXCUSED. Tested as "day-off path" (tests/dayoff.test.ts).
 
 The Crew daily form, which is the whole of this build's report flow (13 questions,
 7 visible on a working day, 3 on a day off):
@@ -443,7 +444,7 @@ Pure logic only, `jest` + `ts-jest`, no device needed:
 | Test         | Covers                                                                                                  |
 | ------------ | ------------------------------------------------------------------------------------------------------- |
 | `visibility` | `visible_if` chains, cascade hide (`fault=false` hides note _and_ photo), stale answers dropped on hide |
-| `closesForm` | `worked_today=false` → 3 visible questions → `EXCUSED` (see Q6)                                         |
+| `dayoff`      | `worked_today=false` → 3 visible questions, 2 screens, `EXCUSED`; catering still required |
 | `validation` | zod built from `required` + `validation.min/max`, per type                                              |
 | `drivePath`  | all four path variables, missing city, two shows, unicode names, sanitisation, filename format          |
 | `queue`      | reducer: enqueue, backoff, restart rehydration, max attempts, dedupe                                    |
@@ -487,8 +488,8 @@ Answered 2026-09-02:
 - **Q3 — Tour to seed:** `T1` / `Tour 1` / 2026-11-01 → 2027-05-30 / `Europe/Vilnius`.
 - **Q4 — Seed all five group rows** with their notify times, but only the Crew form.
 - **Q5 — `is_late`:** 06:00 local the day after `report_date` (C3).
-- **Q6 — `closes_form_if`** = the `worked_today = no` path, deliberately expressed through
-  `visible_if` in the seed. Tested under that name.
+- **Q6 — `closes_form_if`**: vestigial (not in the seed, not in any row). The day-off path is
+  pure `visible_if`; tested as "day-off path".
 
 Drive paths:
 

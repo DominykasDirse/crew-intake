@@ -7,24 +7,22 @@ import {
   Text,
   TextInput,
   type TextInputProps,
+  type TextStyle,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export const colors = {
-  bg: '#111111',
-  card: '#1c1c1e',
-  text: '#f5f5f5',
-  muted: '#a1a1aa',
-  accent: '#3B82F6',
-  danger: '#ef4444',
-  border: '#3f3f46',
-};
+import { colors, fonts, radius, type } from '@/theme';
 
-export function Screen({ children }: PropsWithChildren) {
+export { colors };
+
+export function Screen({ children, padded = true }: PropsWithChildren<{ padded?: boolean }>) {
   return (
-    <SafeAreaView style={s.safe}>
-      <ScrollView contentContainerStyle={s.scroll} keyboardShouldPersistTaps="handled">
+    <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
+      <ScrollView
+        contentContainerStyle={padded ? s.scroll : undefined}
+        keyboardShouldPersistTaps="handled"
+      >
         {children}
       </ScrollView>
     </SafeAreaView>
@@ -32,8 +30,19 @@ export function Screen({ children }: PropsWithChildren) {
 }
 
 export const Title = ({ children }: PropsWithChildren) => <Text style={s.title}>{children}</Text>;
-export const Body = ({ children, muted }: PropsWithChildren<{ muted?: boolean }>) => (
-  <Text style={[s.body, muted && s.muted]}>{children}</Text>
+export const Body = ({
+  children,
+  muted,
+  style,
+}: PropsWithChildren<{ muted?: boolean; style?: TextStyle }>) => (
+  <Text style={[s.body, muted && s.muted, style]}>{children}</Text>
+);
+export const Kicker = ({ children, accent }: PropsWithChildren<{ accent?: boolean }>) => (
+  <Text style={[s.kicker, accent && { color: colors.accent }]}>{children}</Text>
+);
+/** JetBrains-Mono slot: times, dates, tour codes, counts. */
+export const Mono = ({ children, style }: PropsWithChildren<{ style?: TextStyle }>) => (
+  <Text style={[s.mono, style]}>{children}</Text>
 );
 export const ErrorText = ({ children }: PropsWithChildren) =>
   children ? <Text style={s.error}>{children}</Text> : null;
@@ -47,27 +56,40 @@ export function Button({
 }: {
   title: string;
   onPress: () => void;
-  variant?: 'primary' | 'secondary' | 'danger';
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   disabled?: boolean;
   loading?: boolean;
 }) {
+  const off = disabled || loading;
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled: off }}
       onPress={onPress}
-      disabled={disabled || loading}
+      disabled={off}
       style={({ pressed }) => [
         s.button,
         variant === 'secondary' && s.buttonSecondary,
         variant === 'danger' && s.buttonDanger,
-        (disabled || loading) && s.buttonDisabled,
-        pressed && s.pressed,
+        variant === 'ghost' && s.buttonGhost,
+        off && variant === 'primary' && s.buttonDisabled,
+        off && variant !== 'primary' && { opacity: 0.5 },
+        pressed && !off && s.pressed,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={colors.text} />
+        <ActivityIndicator color={variant === 'primary' ? colors.bg : colors.text} />
       ) : (
-        <Text style={s.buttonText}>{title}</Text>
+        <Text
+          style={[
+            s.buttonText,
+            variant === 'secondary' && { color: colors.text, fontWeight: '600' },
+            variant === 'ghost' && { color: colors.muted, fontWeight: '500', fontSize: 14 },
+            off && variant === 'primary' && { color: colors.dim },
+          ]}
+        >
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -81,7 +103,7 @@ export function Field({
   return (
     <View style={s.field}>
       <Text style={s.label}>{label}</Text>
-      <TextInput placeholderTextColor={colors.muted} style={s.input} {...input} />
+      <TextInput placeholderTextColor={colors.dim} style={s.input} {...input} />
       <ErrorText>{error}</ErrorText>
     </View>
   );
@@ -99,17 +121,20 @@ export function Choice<T extends string>({
 }) {
   return (
     <View style={s.choiceRow}>
-      {options.map((o) => (
-        <Pressable
-          key={o.value}
-          accessibilityRole="button"
-          accessibilityState={{ selected: o.value === value }}
-          onPress={() => onChange(o.value)}
-          style={[s.choice, o.value === value && s.choiceActive]}
-        >
-          <Text style={s.choiceText}>{o.label}</Text>
-        </Pressable>
-      ))}
+      {options.map((o) => {
+        const on = o.value === value;
+        return (
+          <Pressable
+            key={o.value}
+            accessibilityRole="button"
+            accessibilityState={{ selected: on }}
+            onPress={() => onChange(o.value)}
+            style={[s.choice, on && s.choiceActive]}
+          >
+            <Text style={[s.choiceText, on && { color: colors.bg }]}>{o.label}</Text>
+          </Pressable>
+        );
+      })}
     </View>
   );
 }
@@ -117,46 +142,50 @@ export function Choice<T extends string>({
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   scroll: { padding: 20, gap: 14, paddingBottom: 40 },
-  title: { color: colors.text, fontSize: 28, fontWeight: '700', marginBottom: 4 },
-  body: { color: colors.text, fontSize: 17, lineHeight: 24 },
+  title: { ...type.display, color: colors.text, fontFamily: fonts.sans, marginBottom: 4 },
+  body: { color: colors.text, fontSize: 15, lineHeight: 22, fontFamily: fonts.sans },
   muted: { color: colors.muted },
-  error: { color: colors.danger, fontSize: 15, marginTop: 4 },
+  kicker: { ...type.kicker, color: colors.muted, fontFamily: fonts.sans },
+  mono: { fontFamily: fonts.mono, fontSize: 12, color: colors.muted },
+  error: { color: colors.red, fontSize: 14, marginTop: 4 },
   button: {
-    minHeight: 56,
-    borderRadius: 12,
+    height: 56,
+    borderRadius: radius.control,
     backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
   },
   buttonSecondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
-  buttonDanger: { backgroundColor: colors.danger },
-  buttonDisabled: { opacity: 0.5 },
-  pressed: { opacity: 0.8 },
-  buttonText: { color: colors.text, fontSize: 18, fontWeight: '600' },
+  buttonDanger: { backgroundColor: colors.red },
+  buttonGhost: { backgroundColor: 'transparent', height: 44 },
+  buttonDisabled: { backgroundColor: colors.disabledBg },
+  pressed: { opacity: 0.85 },
+  buttonText: { color: colors.bg, fontSize: 16, fontWeight: '700', fontFamily: fonts.sans },
   field: { gap: 6 },
-  label: { color: colors.muted, fontSize: 15 },
+  label: { color: colors.muted, fontSize: 14 },
   input: {
     minHeight: 56,
-    borderRadius: 12,
+    borderRadius: radius.control,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
     color: colors.text,
-    fontSize: 18,
+    fontSize: 17,
     paddingHorizontal: 14,
+    fontFamily: fonts.sans,
   },
   choiceRow: { flexDirection: 'row', gap: 10 },
   choice: {
     flex: 1,
-    minHeight: 56,
-    borderRadius: 12,
+    height: 56,
+    borderRadius: radius.control,
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  choiceActive: { borderColor: colors.accent, backgroundColor: '#1e3a8a' },
-  choiceText: { color: colors.text, fontSize: 18, fontWeight: '600' },
+  choiceActive: { borderColor: colors.accent, backgroundColor: colors.accent },
+  choiceText: { color: colors.text2, fontSize: 17, fontWeight: '600' },
 });
