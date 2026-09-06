@@ -92,9 +92,9 @@ try {
     p_client_ref: refA,
   });
   check(
-    'submitted, not late, not duplicate',
+    'submitted on time (deadline = notify + 12h), not duplicate',
     r1.error === null && r1.data?.status === 'submitted' && r1.data?.is_late === false &&
-      r1.data?.duplicate === false,
+      r1.data?.duplicate === false && r1.data?.late_minutes === null && !!r1.data?.deadline_at,
     r1.error?.message ?? r1.data,
   );
   const subId = r1.data?.id as string;
@@ -194,8 +194,9 @@ try {
     p_client_ref: crypto.randomUUID(),
   });
   check(
-    '3 days back → is_late:true',
-    r5.error === null && r5.data?.is_late === true,
+    '3 days back → is_late:true with deadline_at + late_minutes',
+    r5.error === null && r5.data?.is_late === true && !!r5.data?.deadline_at &&
+      typeof r5.data?.late_minutes === 'number',
     r5.error?.message ?? r5.data,
   );
   const r6 = await rpc({
@@ -205,9 +206,17 @@ try {
     p_client_ref: crypto.randomUUID(),
   });
   check(
-    'editing a backfilled day after its cutoff is refused with SQLSTATE 42501 (outbox: permanent)',
-    r6.error !== null && r6.error?.code === '42501',
-    r6.error,
+    'editing a backfilled day is allowed inside the 7-day window; it stays late with the same deadline',
+    r6.error === null && r6.data?.edited === true && r6.data?.is_late === true &&
+      r6.data?.deadline_at === r5.data?.deadline_at,
+    r6.error?.message ?? r6.data,
+  );
+  check(
+    'the record is exact: deadline, filing time, minutes late',
+    typeof r5.data?.late_minutes === 'number' && r5.data.late_minutes > 0 &&
+      Date.parse(r5.data.submitted_at) - Date.parse(r5.data.deadline_at) >=
+        r5.data.late_minutes * 60_000,
+    r5.data,
   );
   const r7 = await rpc({
     p_form_id: form.id,

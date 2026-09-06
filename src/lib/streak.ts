@@ -6,6 +6,9 @@ export type CalendarRow = {
   status: string;
   is_late: boolean;
   submission_id: string | null;
+  deadline_at?: string | null;
+  submitted_at?: string | null;
+  late_minutes?: number | null;
 };
 
 /** Days in a row (counted back from `today` over expected days) that were filed or a day off. */

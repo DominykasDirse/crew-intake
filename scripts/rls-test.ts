@@ -433,14 +433,19 @@ try {
         p_answers: { worked_today: true, overall: 3, fault: false, catering_ok: true },
       }),
       'A backfill 3 days',
-    ) as { id: string; is_late: boolean };
-    check('backfilling 3 days ago is allowed and flagged is_late', late.is_late === true, late);
+    ) as { id: string; is_late: boolean; late_minutes: number | null; deadline_at: string };
+    check(
+      'backfilling 3 days ago is allowed, flagged is_late, and records the deadline + minutes late',
+      late.is_late === true && typeof late.late_minutes === 'number' && late.late_minutes > 0 &&
+        !!late.deadline_at,
+      late,
+    );
 
     const upd = await A.client.from('submissions').update({ status: 'excused' }).eq('id', late.id)
       .select();
     check(
-      'direct update after the 06:00 cutoff touches 0 rows',
-      upd.error === null && (upd.data ?? []).length === 0,
+      'direct update on a 3-day-old report is allowed inside the 7-day window',
+      upd.error === null && (upd.data ?? []).length === 1,
       upd,
     );
     const editLate = await A.client.rpc('submit_report', {
@@ -449,9 +454,10 @@ try {
       p_answers: { worked_today: false, catering_ok: true },
     });
     check(
-      'submit_report edit after cutoff is refused',
-      editLate.error !== null,
-      editLate.error?.message,
+      'submit_report edit of a late report is allowed and keeps is_late + the original deadline',
+      editLate.error === null && editLate.data?.is_late === true &&
+        typeof editLate.data?.late_minutes === 'number' && editLate.data.late_minutes > 0,
+      editLate.error?.message ?? editLate.data,
     );
 
     const del = await A.client.from('submissions').delete().eq('id', ok.id).select();

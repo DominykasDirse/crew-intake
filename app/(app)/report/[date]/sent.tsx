@@ -10,7 +10,7 @@ import { streakFrom, useCalendar, usePublishedForm } from '@/api/reports';
 import { Check } from '@/components/icons';
 import { SevenDayStrip, type StripStatus } from '@/components/report/chrome';
 import { Button } from '@/components/ui';
-import { addDays, editDeadline, localHHmm, shortDateUpper } from '@/lib/dates';
+import { addDays, formatMinutes, localHHmm, shortDateUpper } from '@/lib/dates';
 import { useOutbox, useOutboxItem } from '@/offline/outboxStore';
 import { unfinishedCount } from '@/offline/uploads';
 import { useUploads } from '@/offline/uploadsStore';
@@ -48,16 +48,17 @@ export default function Sent() {
       : status === 'failed'
         ? t('sent.failedTitle')
         : t('sent.queuedTitle');
-  const when = item?.sentAt ?? item?.createdAt ?? openedAt;
+  const when = item?.submittedAt
+    ? Date.parse(item.submittedAt)
+    : (item?.sentAt ?? item?.createdAt ?? openedAt);
   const outcome =
     item?.serverStatus === 'excused'
       ? t('sent.dayOff')
       : item?.isLate
-        ? t('sent.late')
+        ? t('sent.lateBy', { late: formatMinutes(item.lateMinutes ?? 0) })
         : item?.serverStatus
           ? t('sent.onTime')
           : t('sent.pending');
-  const deadline = localHHmm(editDeadline(date, tz), tz);
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right', 'bottom']}>
@@ -77,7 +78,7 @@ export default function Sent() {
         </View>
         <View style={{ alignItems: 'center', gap: 10 }}>
           <Text style={s.title}>{title}</Text>
-          <Text style={s.mono}>
+          <Text style={[s.mono, item?.isLate && { color: colors.amber }]}>
             {shortDateUpper(date, i18n.language, tz)} · {localHHmm(new Date(when), tz)} ·{' '}
             {outcome.toUpperCase()}
           </Text>
@@ -117,9 +118,7 @@ export default function Sent() {
           variant="secondary"
           onPress={() => router.replace('/today')}
         />
-        <Text style={s.caption}>
-          {t('sent.changeUntil')} <Text style={{ fontFamily: fonts.mono400 }}>{deadline}</Text>.
-        </Text>
+        <Text style={s.caption}>{t('sent.changeWindow')}</Text>
       </View>
     </SafeAreaView>
   );

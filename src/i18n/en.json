@@ -135,7 +135,6 @@
     "questions": "{{n}} questions. About two minutes.",
     "resume": "Continue where you left off.",
     "noForm": "No report form is published for your group yet.",
-    "left": "{{time}} left",
     "reportFiled": "Report filed",
     "dayOffRecorded": "Day off recorded",
     "onTime": "on time",
@@ -152,9 +151,12 @@
     "streakCaption": "Days in a row you have filed or marked a day off.",
     "queued": "queued · sends when back online",
     "sendFailed": "could not send · open to retry",
-    "seeSentEdit": "See what you sent · change until {{time}}",
     "photosUploading_one": "{{count}} photo uploading",
-    "photosUploading_other": "{{count}} photos uploading"
+    "photosUploading_other": "{{count}} photos uploading",
+    "leftUntil": "{{time}} left · until {{at}}",
+    "pastDeadline": "Past the deadline ({{at}}). Filing now still counts, recorded as late.",
+    "lateChip": "LATE",
+    "lateBy": "{{late}} late"
   },
   "runner": {
     "next": "Next",
@@ -219,14 +221,16 @@
     "noPhoto": "No photo",
     "nothing": "Nothing to show for this day.",
     "dayOffNote": "This will be filed as a day off. It counts as filed, never as missed.",
-    "lateNote": "This report is late. It still counts, marked as filed late.",
     "failedNote": "Could not send: {{reason}}",
     "retry": "Try sending again",
     "editReport": "Change this report",
-    "closed": "Changes closed at {{time}}. Ask an admin if something is wrong.",
     "photoCount_one": "{{count}} photo",
     "photoCount_other": "{{count}} photos",
-    "photoCount_zero": "No photo"
+    "photoCount_zero": "No photo",
+    "lateNow": "The deadline for this day was {{at}}. Filing now still counts, recorded as late with the actual time.",
+    "lateRecord": "Filed {{filed}} · deadline was {{deadline}} · {{late}} late",
+    "onTimeRecord": "Filed {{filed}} · deadline {{deadline}} · on time",
+    "windowClosed": "This day is older than 7 days and can no longer be changed here. Ask an admin if something is wrong."
   },
   "history": {
     "lastDays": "Last {{n}} days",
@@ -237,7 +241,8 @@
     "ownOnly": "Your own days only. Nobody is compared to anyone.",
     "notAssigned": "not on tour",
     "fileNow": "File now",
-    "beforeJoin": "not yet joined"
+    "beforeJoin": "not yet joined",
+    "lateTotal": "{{total}} late in total"
   },
   "sent": {
     "title": "Sent",
@@ -252,7 +257,6 @@
     "noteQueued": "No connection right now. Your report is saved on this phone and will send itself — you can close the app.",
     "noteFailed": "The server refused this report: {{reason}}. Your answers are kept.",
     "backToToday": "Back to today",
-    "changeUntil": "Need to change something? You have until",
     "chip": {
       "filed": "FILED",
       "late": "LATE",
@@ -262,7 +266,9 @@
       "failed": "FAILED"
     },
     "notePhotos_one": "{{count}} photo is still uploading. You can close the app — it will finish on its own.",
-    "notePhotos_other": "{{count}} photos are still uploading. You can close the app — they will finish on their own."
+    "notePhotos_other": "{{count}} photos are still uploading. You can close the app — they will finish on their own.",
+    "lateBy": "{{late}} late",
+    "changeWindow": "Need to change something? You can, for 7 days."
   },
   "photo": {
     "photo": "Photo",

@@ -116,7 +116,7 @@ export function useSubmission(
       const s = await supabase
         .from('submissions')
         .select(
-          'id,status,submitted_at,edited_at,is_late,answers(question_id,value_number,value_bool,value_text,value_json)',
+          'id,status,submitted_at,edited_at,is_late,deadline_at,answers(question_id,value_number,value_bool,value_text,value_json)',
         )
         .eq('user_id', userId!)
         .eq('form_id', formId!)
@@ -125,6 +125,24 @@ export function useSubmission(
       if (s.error) throw s.error;
       if (s.data) useUploads.getState().rememberSubmission(formId!, date, s.data.id);
       return s.data;
+    },
+  });
+}
+
+/** The person's group: name for the header, notify_at for the deadline (profile.notify_at overrides). */
+export function useGroup(groupId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['group', groupId],
+    enabled: !!groupId,
+    staleTime: 10 * 60_000,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('groups')
+        .select('id,key,name_en,name_lt,notify_at')
+        .eq('id', groupId!)
+        .single();
+      if (error) throw error;
+      return data;
     },
   });
 }

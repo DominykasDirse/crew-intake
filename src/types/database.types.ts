@@ -771,6 +771,7 @@ export type Database = {
         Row: {
           accuracy_m: number | null;
           created_at: string;
+          deadline_at: string | null;
           edited_at: string | null;
           form_id: string;
           id: string;
@@ -787,6 +788,7 @@ export type Database = {
         Insert: {
           accuracy_m?: number | null;
           created_at?: string;
+          deadline_at?: string | null;
           edited_at?: string | null;
           form_id: string;
           id?: string;
@@ -803,6 +805,7 @@ export type Database = {
         Update: {
           accuracy_m?: number | null;
           created_at?: string;
+          deadline_at?: string | null;
           edited_at?: string | null;
           form_id?: string;
           id?: string;
@@ -886,15 +889,15 @@ export type Database = {
         Returns: Json;
       };
       consume_invite: { Args: { p_token: string }; Returns: string };
-      edit_deadline: {
-        Args: { p_report_date: string; p_timezone: string };
-        Returns: string;
-      };
       invite_state: { Args: { p_user_id: string }; Returns: string };
       invoice_editable: { Args: { p_invoice_id: string }; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
       is_lead_of: { Args: { p_user_id: string }; Returns: boolean };
       is_service_role: { Args: never; Returns: boolean };
+      late_minutes: {
+        Args: { p_deadline_at: string; p_submitted_at: string };
+        Returns: number;
+      };
       local_today: { Args: { p_timezone: string }; Returns: string };
       mint_invite: {
         Args: { p_ttl?: string; p_user_id: string };
@@ -902,16 +905,24 @@ export type Database = {
       };
       my_group_id: { Args: never; Returns: string };
       my_timezone: { Args: never; Returns: string };
+      notify_time_for: { Args: { p_user_id: string }; Returns: string };
       project_url: { Args: never; Returns: string };
       report_calendar: {
         Args: { p_from: string; p_to: string; p_user_id: string };
         Returns: {
+          deadline_at: string;
           expected: boolean;
           is_late: boolean;
+          late_minutes: number;
           report_date: string;
           status: string;
           submission_id: string;
+          submitted_at: string;
         }[];
+      };
+      report_deadline: {
+        Args: { p_report_date: string; p_user_id: string };
+        Returns: string;
       };
       revoke_invite: { Args: { p_user_id: string }; Returns: number };
       submission_editable: {

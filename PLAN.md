@@ -159,16 +159,24 @@ server.
 **`status = excused`** is set by the RPC when `worked_today = false`. Counted as filed,
 never as missed, its own colour when the calendar is built.
 
-**`is_late`** — on time if `submitted_at` is before **06:00 local on the day after
-`report_date`**, late after that (C3). Load-out routinely runs past midnight, so a plain
-midnight cutoff would mark honest reports late.
+**`is_late` — replaced 2026-09-06 by the notification rule.** A report for date D is on
+time if filed within **twelve real hours of the person's notification instant** on D
+(`coalesce(profiles.notify_at, groups.notify_at)` in their own timezone): crew notified
+23:30 have until 11:30, chefs notified 21:30 until 09:30. After that it is still accepted
+and still editable inside the 7-day window, but recorded as late with the actual time.
+Late counts as filed. The deadline is **stored on the submission** (`deadline_at`) at first
+filing, and `is_late` is decided by the first filing; edits keep it and are recorded with
+`edited_at` plus the audit trail. `report_calendar` returns `deadline_at`, `submitted_at`
+and `late_minutes` for every day, the same function for the person and the admin.
+Twelve real hours, not twelve wall-clock hours: on the two DST nights the wall clock reads
+an hour off (autumn 10:30, spring 12:30 for crew), but the window is always exactly twelve
+hours and the deadline instant always exists.
 
 **Backfill** — a person can file for today and the previous **7 days**; anything older is
-admin only. Every backfilled day is `is_late = true` (C4).
+admin only. Every backfilled day is late by construction (C4).
 
-**Editing after submit** — allowed until the same 06:00 cutoff. `submissions.edited_at`
-is set, and the previous answer values are written to `audit_log` before they are
-replaced (C5). After the cutoff, admin only; the RLS policy enforces the cutoff in SQL.
+**Editing after submit** — allowed for the same 7 days; `submissions.edited_at` is set and
+the previous answer values are written to `audit_log` before they are replaced (C5).
 
 **Nobody is ever hard-deleted.** Deactivating a person is `status = 'inactive'`. FKs from
 `submissions`, `answers`, `invoices`, `attachments`, `issues`, `assignments` to
@@ -217,8 +225,8 @@ Shape of the policies:
 - `profiles` — select own row, or any row if admin. Update own row but only
   `locale`, `timezone`, `notify_at`, `push_token` (enforced by a trigger that reverts
   changes to `is_admin`, `group_id`, `status`). Admin: full.
-- `submissions` / `answers` — select own; insert own; **update own until 06:00 local
-  the day after `report_date`** (C5); no delete. Admin: full.
+- `submissions` / `answers` — select own; insert own; **update own inside the 7-day
+  window** (C4/C5); no delete. Admin: full.
 - `attachments` — select and insert own (own = attached to own submission/invoice);
   update restricted to nothing user-facing (sync columns are service-role only).
 - `invoices` — select/insert/update own while `status = 'submitted'`. Admin: full.
@@ -374,7 +382,8 @@ attempts, nextAttemptAt, status}`. Photos are copied into app documents storage
 - **`submit_report(p_client_ref)`** (0008): a retry carrying a ref the server already
   recorded returns `duplicate: true` and changes nothing — proven live.
 - **Review / Sent / Home filed state** follow the outbox live (queued → sending → sent /
-  failed with retry). Editing until 06:00 local; backfill from History for missed days
+  failed with retry). Editing inside the 7-day window (was 06:00, superseded by the
+  notification rule); backfill from History for missed days
   within 7 days; History shows the person's own figures only.
 - **Not yet:** photos (phase 6), location opt-in box on the review screen (location phase),
   push (phase 8).
@@ -395,7 +404,7 @@ attempts, nextAttemptAt, status}`. Photos are copied into app documents storage
 - **State per photo** on screen: queued / after report / sending / sent / on Drive /
   Drive retry / failed (tap to retry); Drive state is read from the person's own
   `attachments` rows and polled while pending. Migration 0009 lets photos attach after
-  the 06:00 cutoff (offline photos arrive late; backfilled reports are past it anyway).
+  the deadline (offline photos arrive late; backfilled reports are past it anyway).
 - **Also this phase:** NetInfo reconnect drains, EAS Update on launch, Sentry when a DSN is
   set, PILOT tour (Sept 2026) in the seed, admin tour assignment.
 
@@ -529,7 +538,7 @@ Answered 2026-09-02:
   no real data exists until phase 4. Deno installed via brew for Edge Function tests.
 - **Q3 — Tour to seed:** `T1` / `Tour 1` / 2026-11-01 → 2027-05-30 / `Europe/Vilnius`.
 - **Q4 — Seed all five group rows** with their notify times, but only the Crew form.
-- **Q5 — `is_late`:** 06:00 local the day after `report_date` (C3).
+- **Q5 — `is_late`:** notification time + 12 real hours (superseded C3 on 2026-09-06).
 - **Q6 — `closes_form_if`**: vestigial (not in the seed, not in any row). The day-off path is
   pure `visible_if`; tested as "day-off path".
 
@@ -561,7 +570,7 @@ Other:
   into EAS credentials; exact console steps are printed at the end of phase 8.
 - **Q17 — `must_change_password`:** used for admin-reset accounts.
 - **Q18 — backfill:** today + previous 7 days, all `is_late`; older is admin only (C4).
-- **Q19 — editing:** allowed until the 06:00 cutoff with `edited_at` + audit trail (C5).
+- **Q19 — editing:** allowed inside the 7-day window with `edited_at` + audit trail (C5).
 
 ---
 

@@ -1,15 +1,16 @@
 // Review (design/Review.dc.html). Two modes:
 //   draft    "Check and send": rows from the local draft, Edit jumps back into the runner,
 //            Send hands the pruned answers to the outbox and moves on immediately.
-//   sent     "What you sent": rows from the outbox item or the server submission, with its
-//            state; Edit (until 06:00 local next day) seeds a new draft from those answers.
+//   sent     "What you sent": rows from the outbox item or the server submission, with the
+//            exact record (deadline, filing time, minutes late); Edit inside the 7-day window
+//            seeds a new draft from those answers.
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { usePublishedForm, useSubmission } from '@/api/reports';
+import { useGroup, usePublishedForm, useSubmission } from '@/api/reports';
 import { Chip, type ChipKind } from '@/components/report/chrome';
 import { Button } from '@/components/ui';
 import { formatAnswer, questionLabel } from '@/forms/format';
@@ -17,7 +18,14 @@ import { buildScreens, screenQuestions } from '@/forms/screens';
 import { deriveStatus } from '@/forms/status';
 import type { Answers, Question } from '@/forms/types';
 import { pruneAnswers, visibleQuestions } from '@/forms/visibility';
-import { editDeadline, isEditable, localHHmm, longDate } from '@/lib/dates';
+import {
+  formatMinutes,
+  isWithinWindow,
+  lateMinutes,
+  localStamp,
+  longDate,
+  reportDeadline,
+} from '@/lib/dates';
 import { useOutbox, useOutboxItem } from '@/offline/outboxStore';
 import { photosFor } from '@/offline/uploads';
 import { useUploads } from '@/offline/uploadsStore';
@@ -29,9 +37,11 @@ export default function Review() {
   const { t, i18n } = useTranslation();
   const router = useRouter();
   const { date } = useLocalSearchParams<{ date: string }>();
+  const [openedAt] = useState(() => Date.now()); // not Date.now() in render: the screen is short-lived, one reading is enough
   const profile = useSession((s) => s.profile);
   const tz = profile?.timezone ?? 'Europe/Vilnius';
   const form = usePublishedForm(profile?.group_id);
+  const group = useGroup(profile?.group_id);
   const formId = form.data?.form.id;
   const questions = useMemo(() => form.data?.questions ?? [], [form.data]);
 
@@ -43,11 +53,8 @@ export default function Review() {
   const retryNow = useOutbox((s) => s.retryNow);
   const uploads = useUploads((s) => s.uploads);
   const pruneHidden = useUploads((s) => s.pruneHidden);
-  const photoCount = (key: string) =>
-    formId ? photosFor(uploads, formId, date ?? '', key).length : 0;
   const server = useSubmission(profile?.user_id, formId, date ?? '');
 
-  // answers to show: draft > outbox > server
   const serverAnswers = useMemo<Answers | null>(() => {
     if (!server.data) return null;
     const byId = new Map(questions.map((q) => [q.id, q]));
@@ -75,17 +82,38 @@ export default function Review() {
   const visible = visibleQuestions(questions, answers);
   const screens = buildScreens(questions, answers);
   const screenIndexOf = (q: Question) =>
-    screens.findIndex((s) => screenQuestions(s, visible).some((x) => x.key === q.key));
+    screens.findIndex((sc) => screenQuestions(sc, visible).some((x) => x.key === q.key));
+  const photoCount = (key: string) =>
+    formId ? photosFor(uploads, formId, date ?? '', key).length : 0;
 
   if (!date) return null;
-  const editable = isEditable(date, tz);
-  const deadlineLocal = localHHmm(editDeadline(date, tz), tz);
-  const lateNow = !editable && mode === 'draft';
+  const notifyAt = profile?.notify_at ?? group.data?.notify_at ?? null;
+  const deadline = reportDeadline(date, notifyAt, tz);
+  const editable = isWithinWindow(date, tz);
+  const lateNow = mode === 'draft' && openedAt >= deadline.getTime();
+
+  // the record: the server row is authoritative; the outbox keeps the server's answer for offline viewing
+  const rec = server.data
+    ? {
+        deadlineAt: server.data.deadline_at,
+        submittedAt: server.data.submitted_at,
+        late: server.data.is_late,
+      }
+    : outboxItem?.deadlineAt
+      ? {
+          deadlineAt: outboxItem.deadlineAt,
+          submittedAt: outboxItem.submittedAt,
+          late: outboxItem.isLate ?? false,
+        }
+      : null;
+  const lateMins =
+    rec?.deadlineAt && rec.submittedAt
+      ? lateMinutes(new Date(rec.submittedAt), new Date(rec.deadlineAt))
+      : null;
 
   const send = () => {
     if (!formId || !draft) return;
     const pruned = pruneAnswers(questions, draft.answers);
-    // photos ride separately: record how many were attached, drop any for questions now hidden
     for (const q of visible)
       if (q.type === 'photo')
         pruned[q.key] = {
@@ -115,11 +143,13 @@ export default function Review() {
     if (outboxItem && (outboxItem.status === 'queued' || outboxItem.status === 'sending'))
       return { chip: 'syncing', label: t('sent.chip.queued') };
     const st = server.data?.status ?? outboxItem?.serverStatus;
-    const late = server.data?.is_late ?? outboxItem?.isLate ?? false;
     if (st === 'excused') return { chip: 'dayoff', label: t('sent.chip.dayOff') };
-    return late
-      ? { chip: 'late', label: t('sent.chip.late') }
-      : { chip: 'filed', label: t('sent.chip.filed') };
+    if (rec?.late)
+      return {
+        chip: 'late',
+        label: `${t('sent.chip.late')}${lateMins !== null ? ' · ' + formatMinutes(lateMins) : ''}`,
+      };
+    return { chip: 'filed', label: t('sent.chip.filed') };
   })();
 
   return (
@@ -159,7 +189,25 @@ export default function Review() {
         {mode === 'draft' && deriveStatus(answers) === 'excused' && (
           <Text style={s.note}>{t('review.dayOffNote')}</Text>
         )}
-        {lateNow && <Text style={[s.note, { color: colors.amber }]}>{t('review.lateNote')}</Text>}
+        {lateNow && (
+          <Text style={[s.note, { color: colors.amber }]}>
+            {t('review.lateNow', { at: localStamp(deadline, i18n.language, tz) })}
+          </Text>
+        )}
+        {mode === 'sent' && rec?.deadlineAt && rec.submittedAt && (
+          <Text style={[s.note, rec.late && { color: colors.amber }]}>
+            {rec.late
+              ? t('review.lateRecord', {
+                  filed: localStamp(new Date(rec.submittedAt), i18n.language, tz),
+                  deadline: localStamp(new Date(rec.deadlineAt), i18n.language, tz),
+                  late: formatMinutes(lateMins ?? 0),
+                })
+              : t('review.onTimeRecord', {
+                  filed: localStamp(new Date(rec.submittedAt), i18n.language, tz),
+                  deadline: localStamp(new Date(rec.deadlineAt), i18n.language, tz),
+                })}
+          </Text>
+        )}
         {outboxItem?.status === 'failed' && (
           <Text style={[s.note, { color: colors.red }]}>
             {t('review.failedNote', { reason: outboxItem.lastError ?? '' })}
@@ -181,7 +229,7 @@ export default function Review() {
             {editable ? (
               <Button title={t('review.editReport')} variant="secondary" onPress={edit} />
             ) : (
-              <Text style={s.caption}>{t('review.closed', { time: deadlineLocal })}</Text>
+              <Text style={s.caption}>{t('review.windowClosed')}</Text>
             )}
             <Button
               title={t('sent.backToToday')}

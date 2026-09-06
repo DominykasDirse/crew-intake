@@ -1,5 +1,6 @@
-// History: the person's own figures and their own days — nobody else's, ever.
-// Missed days inside the 7-day window can be filed from here (late, but filed).
+// History: the person's own figures and their own days — nobody else's, ever. Same
+// functions as the admin views. Late days show exactly how late. Missed days inside the
+// 7-day window can be filed from here (late, but filed).
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -10,7 +11,7 @@ import { useCalendar, usePublishedForm } from '@/api/reports';
 import { supabase } from '@/api/supabase';
 import { ChevronRight } from '@/components/icons';
 import { Chip, type ChipKind } from '@/components/report/chrome';
-import { addDays, fileableDates, longDate, shortDateUpper } from '@/lib/dates';
+import { addDays, fileableDates, formatMinutes, longDate, shortDateUpper } from '@/lib/dates';
 import { errorMessage } from '@/lib/errors';
 import { localReportDate } from '@/lib/reportDate';
 import { useOutbox } from '@/offline/outboxStore';
@@ -18,6 +19,17 @@ import { useSession } from '@/store/session';
 import { colors, fonts, radius, type } from '@/theme';
 
 const DAYS = 31;
+
+type Summary = {
+  expected_days: number;
+  filed: number;
+  late: number;
+  excused: number;
+  missed: number;
+  pending: number;
+  late_minutes_total: number;
+  last_filed: string | null;
+};
 
 export default function History() {
   const { t, i18n } = useTranslation();
@@ -39,22 +51,18 @@ export default function History() {
         p_to: today,
       });
       if (error) throw error;
-      return data as unknown as {
-        expected_days: number;
-        filed: number;
-        late: number;
-        excused: number;
-        missed: number;
-        pending: number;
-        last_filed: string | null;
-      };
+      return data as unknown as Summary;
     },
   });
   const fileable = new Set(fileableDates(tz));
   const sum = summary.data;
-
   const rows = [...(cal.data ?? [])].sort((a, b) => (a.report_date < b.report_date ? 1 : -1));
-  const chipFor = (status: string, date: string): { kind: ChipKind; label: string } | null => {
+
+  const chipFor = (
+    status: string,
+    date: string,
+    lateMin?: number | null,
+  ): { kind: ChipKind; label: string } | null => {
     const ob = form.data ? outbox[`${form.data.form.id}|${date}`] : undefined;
     if (ob && (ob.status === 'queued' || ob.status === 'sending'))
       return { kind: 'syncing', label: t('sent.chip.queued') };
@@ -63,7 +71,13 @@ export default function History() {
       case 'filed':
         return { kind: 'filed', label: t('sent.chip.filed') };
       case 'late':
-        return { kind: 'late', label: t('sent.chip.late') };
+        return {
+          kind: 'late',
+          label:
+            lateMin != null
+              ? `${t('sent.chip.late')} · ${formatMinutes(lateMin)}`
+              : t('sent.chip.late'),
+        };
       case 'excused':
         return { kind: 'dayoff', label: t('sent.chip.dayOff') };
       case 'missed':
@@ -71,7 +85,7 @@ export default function History() {
       case 'pending':
         return { kind: 'due', label: t('home.due') };
       default:
-        return null;
+        return null; // before_join / not_assigned: plain text, no colour
     }
   };
 
@@ -106,6 +120,9 @@ export default function History() {
                   dayOff: sum.excused,
                   missed: sum.missed,
                 })}
+                {sum.late > 0 && sum.late_minutes_total
+                  ? ` · ${t('history.lateTotal', { total: formatMinutes(sum.late_minutes_total) })}`
+                  : ''}
               </Text>
               <Text style={s.figureSub}>
                 {sum.last_filed
@@ -123,7 +140,7 @@ export default function History() {
 
         <View style={{ gap: 8 }}>
           {rows.map((r) => {
-            const chip = chipFor(r.status, r.report_date);
+            const chip = chipFor(r.status, r.report_date, r.late_minutes);
             const canFile = r.status === 'missed' && fileable.has(r.report_date);
             const canOpen =
               ['filed', 'late', 'excused'].includes(r.status) ||
@@ -141,7 +158,7 @@ export default function History() {
                 onPress={onPress}
                 style={({ pressed }) => [
                   s.row,
-                  !r.expected && { opacity: 0.45 },
+                  !r.expected && { opacity: 0.55 },
                   pressed && { opacity: 0.8 },
                 ]}
               >

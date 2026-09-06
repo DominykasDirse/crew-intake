@@ -29,6 +29,9 @@ export type OutboxItem = {
   serverId: string | null;
   serverStatus: 'submitted' | 'excused' | null;
   isLate: boolean | null;
+  deadlineAt: string | null;
+  submittedAt: string | null;
+  lateMinutes: number | null;
 };
 
 export type OutboxState = { items: Record<string, OutboxItem> };
@@ -61,6 +64,9 @@ export type OutboxEvent =
       serverId: string;
       serverStatus: 'submitted' | 'excused';
       isLate: boolean;
+      deadlineAt?: string | null;
+      submittedAt?: string | null;
+      lateMinutes?: number | null;
       now: number;
     }
   | {
@@ -117,6 +123,9 @@ export function outboxReducer(state: OutboxState, ev: OutboxEvent): OutboxState 
         serverId: null,
         serverStatus: null,
         isLate: null,
+        deadlineAt: null,
+        submittedAt: null,
+        lateMinutes: null,
       };
       return { items: { ...state.items, [key]: item } };
     }
@@ -164,6 +173,9 @@ export function outboxReducer(state: OutboxState, ev: OutboxEvent): OutboxState 
             serverId: ev.serverId,
             serverStatus: ev.serverStatus,
             isLate: ev.isLate,
+            deadlineAt: ev.deadlineAt ?? null,
+            submittedAt: ev.submittedAt ?? null,
+            lateMinutes: ev.lateMinutes ?? null,
             lastError: null,
             updatedAt: ev.now,
           },

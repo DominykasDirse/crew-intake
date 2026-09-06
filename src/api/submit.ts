@@ -12,7 +12,9 @@ export type SubmitResult = {
   is_late: boolean;
   edited: boolean;
   duplicate: boolean;
-  editable_until: string;
+  deadline_at: string;
+  submitted_at: string;
+  late_minutes: number | null;
 };
 
 export type SendOutcome =

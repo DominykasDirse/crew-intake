@@ -71,8 +71,9 @@ function parseEnvFile(file) {
     const m = /^\s*(?:export\s+)?([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/.exec(line);
     if (!m) continue;
     let v = m[2].trim();
-    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'")))
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
       v = v.slice(1, -1);
+    }
     out[m[1]] = v;
   }
   return out;
@@ -85,8 +86,9 @@ function checkAll(rootDir) {
     .readdirSync(rootDir)
     .filter((f) => f === '.env' || (f.startsWith('.env.') && !f.endsWith('.example')));
   for (const f of files) {
-    for (const p of findPublicSecrets(parseEnvFile(path.join(rootDir, f))))
+    for (const p of findPublicSecrets(parseEnvFile(path.join(rootDir, f)))) {
       problems.push(`${f}: ${p}`);
+    }
   }
   return problems;
 }

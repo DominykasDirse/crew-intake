@@ -87,6 +87,9 @@ export const useOutbox = create<Store>()(
                   serverId: r.result.id,
                   serverStatus: r.result.status,
                   isLate: r.result.is_late,
+                  deadlineAt: r.result.deadline_at,
+                  submittedAt: r.result.submitted_at,
+                  lateMinutes: r.result.late_minutes,
                   now: Date.now(),
                 });
                 useUploads.getState().rememberSubmission(it.formId, it.reportDate, r.result.id);

@@ -1,4 +1,5 @@
 // Home. Two states from the canvas: Main (report due) and HomeDone (report filed).
+// The deadline is the person's notification time + 12 real hours (0011).
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -9,13 +10,22 @@ import {
   streakFrom,
   useCalendar,
   useDayContext,
+  useGroup,
   usePublishedForm,
   useSubmission,
 } from '@/api/reports';
 import { Check, ChevronRight, Clock, FileIcon } from '@/components/icons';
 import { Chip, SevenDayStrip, type StripStatus, StripLegend } from '@/components/report/chrome';
 import { workingDayScreenCount } from '@/forms/screens';
-import { addDays, editDeadline, isEditable, localHHmm, longDate, timeLeft } from '@/lib/dates';
+import {
+  addDays,
+  formatMinutes,
+  lateMinutes,
+  localHHmm,
+  longDate,
+  reportDeadline,
+  timeLeft,
+} from '@/lib/dates';
 import { localReportDate } from '@/lib/reportDate';
 import { useOutboxItem } from '@/offline/outboxStore';
 import { unfinishedCount } from '@/offline/uploads';
@@ -37,6 +47,7 @@ export default function Today() {
   const today = localReportDate(now, tz);
 
   const form = usePublishedForm(profile?.group_id);
+  const group = useGroup(profile?.group_id);
   const ctx = useDayContext(profile?.user_id, today);
   const sub = useSubmission(profile?.user_id, form.data?.form.id, today);
   const cal = useCalendar(profile?.user_id, addDays(today, -60), today);
@@ -48,7 +59,12 @@ export default function Today() {
     form.data ? unfinishedCount(s.uploads, form.data.form.id, today) : 0,
   );
 
-  const groupName = useGroupName(profile?.group_id);
+  const notifyAt = profile?.notify_at ?? group.data?.notify_at ?? null;
+  const deadline = reportDeadline(today, notifyAt, tz);
+  const pastDeadline = now.getTime() >= deadline.getTime();
+  const left = timeLeft(today, notifyAt, tz, now);
+
+  const groupName = group.data?.name_en ?? '';
   const kicker = [ctx.data?.tour?.code, ctx.data?.tour?.name, groupName]
     .filter(Boolean)
     .join(' · ')
@@ -62,16 +78,36 @@ export default function Today() {
       : t('home.noShow');
 
   const rows = cal.data ?? [];
-  const status = (d: string): StripStatus =>
+  const statusOf = (d: string): StripStatus =>
     (rows.find((r) => r.report_date === d)?.status as StripStatus | undefined) ?? 'unknown';
   const filed = !!sub.data || !!outboxItem;
-  const editable = isEditable(today, tz, now);
-  const stripDays = Array.from({ length: 7 }, (_, i) => addDays(today, filed ? i - 6 : i - 7));
-  const strip = stripDays.map(status);
+  const strip = Array.from({ length: 7 }, (_, i) => addDays(today, filed ? i - 6 : i - 7)).map(
+    statusOf,
+  );
   const filedCount = strip.filter((x) => x === 'filed' || x === 'late' || x === 'excused').length;
   const streak = streakFrom(rows, today);
-  const left = timeLeft(today, tz, now);
   const nQuestions = form.data ? workingDayScreenCount(form.data.questions) : null;
+
+  // the filed card's record: server row first, else the outbox's copy of the server answer
+  const status = sub.data?.status ?? outboxItem?.serverStatus ?? null;
+  const isLate = sub.data?.is_late ?? outboxItem?.isLate ?? false;
+  const filedAt = sub.data?.submitted_at ?? outboxItem?.submittedAt ?? null;
+  const lateBy =
+    sub.data?.submitted_at && sub.data.deadline_at
+      ? lateMinutes(new Date(sub.data.submitted_at), new Date(sub.data.deadline_at))
+      : (outboxItem?.lateMinutes ?? null);
+  const filedLine =
+    outboxItem && outboxItem.status !== 'sent'
+      ? outboxItem.status === 'failed'
+        ? t('home.sendFailed')
+        : t('home.queued')
+      : `${filedAt ? localHHmm(new Date(filedAt), tz) : '—'} · ${
+          status === 'excused'
+            ? t('home.dayOff')
+            : isLate
+              ? t('home.lateBy', { late: formatMinutes(lateBy ?? 0) })
+              : t('home.onTime')
+        }${pendingPhotos > 0 ? ` · ${t('home.photosUploading', { count: pendingPhotos })}` : ''}`;
 
   return (
     <SafeAreaView style={s.safe} edges={['top', 'left', 'right']}>
@@ -106,7 +142,10 @@ export default function Today() {
                 }}
               >
                 <Text style={s.dueTitle}>{t('home.reportToday')}</Text>
-                <Chip kind="due" label={t('home.due')} />
+                <Chip
+                  kind={pastDeadline ? 'late' : 'due'}
+                  label={pastDeadline ? t('home.lateChip') : t('home.due')}
+                />
               </View>
               <Text style={s.dueSub}>
                 {draft
@@ -117,12 +156,14 @@ export default function Today() {
                       ? t('home.noForm')
                       : t('common.loading')}
               </Text>
-              {left ? (
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
-                  <Clock size={16} color={colors.bg} />
-                  <Text style={s.dueLeft}>{t('home.left', { time: left })}</Text>
-                </View>
-              ) : null}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+                <Clock size={16} color={colors.bg} />
+                <Text style={s.dueLeft}>
+                  {left
+                    ? t('home.leftUntil', { time: left, at: localHHmm(deadline, tz) })
+                    : t('home.pastDeadline', { at: localHHmm(deadline, tz) })}
+                </Text>
+              </View>
             </Pressable>
           ) : (
             <View style={s.card}>
@@ -138,23 +179,11 @@ export default function Today() {
                   }
                 />
                 <Text style={s.filedTitle}>
-                  {sub.data?.status === 'excused'
-                    ? t('home.dayOffRecorded')
-                    : t('home.reportFiled')}
+                  {status === 'excused' ? t('home.dayOffRecorded') : t('home.reportFiled')}
                 </Text>
               </View>
-              <Text style={s.mono}>
-                {outboxItem && outboxItem.status !== 'sent'
-                  ? outboxItem.status === 'failed'
-                    ? t('home.sendFailed')
-                    : t('home.queued')
-                  : `${localHHmm(new Date(sub.data?.submitted_at ?? outboxItem?.sentAt ?? now.getTime()), tz)} · ${
-                      (sub.data?.status ?? outboxItem?.serverStatus) === 'excused'
-                        ? t('home.dayOff')
-                        : (sub.data?.is_late ?? outboxItem?.isLate)
-                          ? t('home.late')
-                          : t('home.onTime')
-                    }${pendingPhotos > 0 ? ` · ${t('home.photosUploading', { count: pendingPhotos })}` : ''}`}
+              <Text style={[s.mono, isLate && status !== 'excused' && { color: colors.amber }]}>
+                {filedLine}
               </Text>
               <View style={s.divider} />
               <Pressable
@@ -168,11 +197,7 @@ export default function Today() {
                   marginVertical: -10,
                 }}
               >
-                <Text style={{ fontFamily: fonts.sans400, fontSize: 14, color: colors.text2 }}>
-                  {editable
-                    ? t('home.seeSentEdit', { time: localHHmm(editDeadline(today, tz), tz) })
-                    : t('home.seeSent')}
-                </Text>
+                <Text style={s.seeSent}>{t('home.seeSent')}</Text>
                 <ChevronRight size={18} />
               </Pressable>
             </View>
@@ -181,12 +206,8 @@ export default function Today() {
           <View style={[s.card, s.row, { opacity: 0.55 }]}>
             <FileIcon size={22} />
             <View style={{ flex: 1, gap: 2 }}>
-              <Text style={{ fontFamily: fonts.sans600, fontSize: 16, color: colors.text }}>
-                {t('home.invoice')}
-              </Text>
-              <Text style={{ fontFamily: fonts.sans400, fontSize: 12, color: colors.muted }}>
-                {t('home.invoiceSoon')}
-              </Text>
+              <Text style={s.invoiceTitle}>{t('home.invoice')}</Text>
+              <Text style={s.invoiceSub}>{t('home.invoiceSoon')}</Text>
             </View>
             <ChevronRight size={18} />
           </View>
@@ -222,16 +243,7 @@ export default function Today() {
               <Text style={s.streakNum}>{streak}</Text>
             </View>
             <SevenDayStrip days={strip} panel />
-            <Text
-              style={{
-                fontFamily: fonts.sans400,
-                fontSize: 12,
-                color: colors.muted,
-                lineHeight: 18,
-              }}
-            >
-              {t('home.streakCaption')}
-            </Text>
+            <Text style={s.streakCaption}>{t('home.streakCaption')}</Text>
           </View>
         )}
       </View>
@@ -239,31 +251,11 @@ export default function Today() {
   );
 }
 
-function useGroupName(groupId: string | null | undefined) {
-  const { i18n } = useTranslation();
-  const cached = useLocal((s) => (groupId ? s.formCache[groupId] : undefined));
-  const [name, setName] = useState<string>('');
-  useEffect(() => {
-    if (!groupId) return;
-    void import('@/api/supabase').then(({ supabase }) =>
-      supabase
-        .from('groups')
-        .select('name_en,name_lt')
-        .eq('id', groupId)
-        .single()
-        .then(({ data }) => {
-          if (data) setName(i18n.language === 'lt' ? data.name_lt : data.name_en);
-        }),
-    );
-  }, [groupId, i18n.language, cached]);
-  return name;
-}
-
 const s = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.bg },
   body: { flex: 1, paddingHorizontal: 20, paddingTop: 24, gap: 24 },
   kicker: { fontFamily: fonts.mono400, fontSize: 11, letterSpacing: 1.3, color: colors.muted },
-  date: { fontFamily: fonts.sans400, ...type.display, color: colors.text },
+  date: { ...type.display, color: colors.text },
   showLine: { fontFamily: fonts.sans400, fontSize: 14, color: colors.text2 },
   dueCard: {
     backgroundColor: colors.accent,
@@ -293,6 +285,10 @@ const s = StyleSheet.create({
   filedTitle: { fontFamily: fonts.sans700, fontSize: 20, letterSpacing: -0.3, color: colors.text },
   mono: { fontFamily: fonts.mono400, fontSize: 12, color: colors.muted },
   divider: { height: 1, backgroundColor: colors.border },
+  seeSent: { fontFamily: fonts.sans400, fontSize: 14, color: colors.text2 },
+  invoiceTitle: { fontFamily: fonts.sans600, fontSize: 16, color: colors.text },
+  invoiceSub: { fontFamily: fonts.sans400, fontSize: 12, color: colors.muted },
   sectionKicker: { ...type.kicker, color: colors.muted },
   streakNum: { fontFamily: fonts.mono600, fontSize: 28, color: colors.accent, lineHeight: 30 },
+  streakCaption: { fontFamily: fonts.sans400, fontSize: 12, color: colors.muted, lineHeight: 18 },
 });
