@@ -60,6 +60,7 @@ try {
     group_id: crew.id,
     timezone: 'Europe/Vilnius',
     status: 'active',
+    active_from: daysAgo(10),
   });
   await svc.from('assignments').insert({
     tour_id: tour.id,

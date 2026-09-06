@@ -79,6 +79,7 @@ async function makePerson(
       timezone: 'Europe/Vilnius',
       is_admin: isAdmin,
       status: 'active',
+      active_from: daysAgo(30),
     }),
     'insert profile',
   );
