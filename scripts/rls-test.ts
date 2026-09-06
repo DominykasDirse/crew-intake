@@ -452,7 +452,13 @@ try {
     const editLate = await A.client.rpc('submit_report', {
       p_form_id: crewForm.id,
       p_report_date: daysAgo(3),
-      p_answers: { worked_today: false, catering_ok: true },
+      p_answers: {
+        worked_today: true,
+        overall: 2,
+        fault: false,
+        missing: false,
+        catering_ok: true,
+      },
     });
     check(
       'submit_report edit of a late report is allowed and keeps is_late + the original deadline',
