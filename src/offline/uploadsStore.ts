@@ -164,7 +164,7 @@ async function uploadOne(it: UploadItem, submissionId: string, userId: string, g
           storage_path: path,
           filename: it.filename,
           mime: it.mime,
-          bytes: it.bytes,
+          bytes: bytes.byteLength, // what actually went to Storage, not the queue's estimate
         },
         { onConflict: 'storage_path' },
       )

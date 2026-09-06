@@ -57,12 +57,15 @@ async function shrinkAndKeep(asset: ImagePicker.ImagePickerAsset): Promise<Captu
   const id = newId();
   const dest = new File(photosDir(), `${id}.jpg`);
   new File(out.uri).copy(dest);
+  // File.size can come back null right after a copy; the byte length never lies
+  let bytes = dest.size ?? 0;
+  if (bytes <= 0) bytes = (await dest.bytes()).byteLength;
   return {
     id,
     localUri: dest.uri,
     filename: (asset.fileName ?? `IMG_${id.slice(0, 8)}.jpg`).replace(/\.[a-z0-9]+$/i, '.jpg'),
     mime: 'image/jpeg',
-    bytes: dest.size ?? 0,
+    bytes,
     width: out.width,
     height: out.height,
   };

@@ -75,6 +75,8 @@ export async function driveFetch(
 }
 
 export type DriveFile = {
+  size?: string; // bytes, as a string (Drive returns int64 as string)
+  md5Checksum?: string;
   id: string;
   name: string;
   mimeType?: string;
@@ -164,7 +166,7 @@ export async function listChildren(parentId: string): Promise<DriveFile[]> {
   do {
     const url = `${API}/files?q=${
       encodeURIComponent(`'${q(parentId)}' in parents and trashed=false`)
-    }&fields=nextPageToken,files(id,name,mimeType,parents)&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true${
+    }&fields=nextPageToken,files(id,name,mimeType,parents,size,md5Checksum)&pageSize=200&supportsAllDrives=true&includeItemsFromAllDrives=true${
       pageToken ? `&pageToken=${pageToken}` : ''
     }`;
     const j = (await (await driveFetch(url, {}, 'list')).json()) as {
