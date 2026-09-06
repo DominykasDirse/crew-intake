@@ -5,7 +5,9 @@ export function errorMessage(e: unknown): string {
   if (e instanceof Error && e.message) return e.message;
   if (typeof e === 'object') {
     const o = e as { message?: unknown; code?: unknown; hint?: unknown; details?: unknown };
-    const parts = [o.code, o.message].filter((x): x is string => typeof x === 'string' && x.length > 0);
+    const parts = [o.code, o.message].filter(
+      (x): x is string => typeof x === 'string' && x.length > 0,
+    );
     if (parts.length) return parts.join(': ');
     try {
       return JSON.stringify(e);

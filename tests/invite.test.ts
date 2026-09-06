@@ -28,12 +28,11 @@ describe('parseInviteToken', () => {
 });
 
 describe('pickLocale', () => {
-  it('takes the first supported device language, ignoring region', () => {
-    expect(pickLocale(['lt-LT', 'en-GB'])).toBe('lt');
-    expect(pickLocale(['de-DE', 'en-US'])).toBe('en');
+  it('English is the only shipped language: every device language maps to en', () => {
+    expect(pickLocale(['lt-LT', 'en-GB'])).toBe('en');
     expect(pickLocale(['de-DE', 'pl-PL'])).toBe('en');
     expect(pickLocale([])).toBe('en');
-    expect(pickLocale([null, undefined, 'LT'])).toBe('lt');
+    expect(pickLocale([null, undefined, 'LT'])).toBe('en');
   });
 });
 

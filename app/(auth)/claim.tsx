@@ -8,10 +8,9 @@ import { View } from 'react-native';
 
 import { invokeFn } from '@/api/functions';
 import { supabase } from '@/api/supabase';
-import { Body, Button, Choice, ErrorText, Field, Screen, Title } from '@/components/ui';
-import { deviceLocale, deviceTimezone, setLocale } from '@/i18n';
+import { Body, Button, ErrorText, Field, Screen, Title } from '@/components/ui';
+import { deviceLocale, deviceTimezone } from '@/i18n';
 import { parseInviteToken } from '@/lib/invite';
-import { type Locale } from '@/lib/locale';
 import { type ClaimForm, claimSchema, PASSWORD_MIN } from '@/lib/password';
 
 const contact =
@@ -24,7 +23,6 @@ export default function Claim() {
   const fromLink = parseInviteToken(params.token);
 
   const [rawInput, setRawInput] = useState('');
-  const [locale, setLocaleState] = useState<Locale>(deviceLocale());
   const [serverError, setServerError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -32,11 +30,6 @@ export default function Claim() {
     resolver: zodResolver(claimSchema),
     defaultValues: { password: '', confirm: '' },
   });
-
-  const pickLanguage = (l: Locale) => {
-    setLocaleState(l);
-    void setLocale(l);
-  };
 
   const submit = handleSubmit(async ({ password }) => {
     const token = fromLink ?? parseInviteToken(rawInput);
@@ -49,7 +42,7 @@ export default function Claim() {
     const r = await invokeFn<{ email: string }>('claim-invite', {
       token,
       password,
-      locale,
+      locale: deviceLocale(),
       timezone: deviceTimezone(),
     });
     if (!r.ok) {
@@ -71,16 +64,6 @@ export default function Claim() {
   return (
     <Screen>
       <Title>{t('claim.title')}</Title>
-
-      <Body muted>{t('common.language')}</Body>
-      <Choice
-        value={locale}
-        onChange={pickLanguage}
-        options={[
-          { value: 'en', label: t('common.english') },
-          { value: 'lt', label: t('common.lithuanian') },
-        ]}
-      />
 
       <View style={{ gap: 10, marginTop: 8 }}>
         <Body>
